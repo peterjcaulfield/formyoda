@@ -1,8 +1,7 @@
 
 var formyoda = {};
-
+formyoda.labels = {inline : false};
 formyoda.validation = {};
-
 formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Invalid Email'};
 
 formyoda.validation.blank = function(input){
@@ -45,47 +44,58 @@ formyoda.validate = function(inputs){
           return true;
 }
 
-formyoda.add_yodalayers = function(inputs){
+formyoda.add_yodalabels = function(inputs){
 
-  formyoda.yodalayers = inputs;
+  formyoda.yodalabels = inputs;
 
   for(var propName in inputs){
     
     var id = '#' + propName;
     var yodaid = propName + '_yodalay';
-    // this allows us to get the relative position of the inputs
-    $(id).parent().css({'position': 'relative'});
     
-    var topPos = $(id).position().top;
-    var leftPos = $(id).position().left;
-
-    $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
-    $(id).parent().append('<input id="' + yodaid + '"/>');
-    $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
-
-    // set initial input value
-    $('#' + yodaid).val(inputs[propName]);
+    if(formyoda.labels.inline == false){
+      // this allows us to get the relative position of the inputs
+      $(id).parent().css({'position': 'relative'});
+      
+      var topPos = $(id).position().top;
+      var leftPos = $(id).position().left;
+      // set initial input value
+      $('#' + yodaid).val(inputs[propName]);
   
-    // bind to input focus and blur
-    $(id).focus(function(){
+      // bind to input focus and blur
+      $(id).focus(function(){
             var elem_id = $(this).attr('id');
             if($(this).val() == '')      
               $('#' +  elem_id + '_yodalay').val('');
          });
 
-    $(id).blur(function(){
+      $(id).blur(function(){
            var  elem_id = $(this).attr('id');
             if($(this).val() == '')    
-              $('#' +  elem_id + '_yodalay').val(formyoda.yodalayers[elem_id]);
+              $('#' +  elem_id + '_yodalay').val(formyoda.yodalabels[elem_id]);
         });
-
+      
+      $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
+      $(id).parent().append('<input id="' + yodaid + '"/>');
+      $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
+   
+    }else
+    {
+      $(id).parent().css({'position': 'relative'});
+      var topPos = $(id).position().top;
+      var leftPos = ($(id).width() + 20);
+      $(id).parent().css({'position': 'relative'});
+      $(id).parent().append('<input id="' + yodaid + '"/>');
+      $('#' + yodaid).val(inputs[propName]);
+      $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
+    }
   } // end of loop
-
 } // end of add function
 
 $(document).ready(function(){
-    
-    formyoda.add_yodalayers({'username' : 'username...', 'mail' : 'email...'})
+   
+    formyoda.labels.inline = false;
+    formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'})
     var validation = { 'username' : ['blank'],  'mail': ['blank', 'email'] };
         
     $('form').submit(function(){
