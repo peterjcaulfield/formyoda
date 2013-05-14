@@ -1,6 +1,10 @@
 
 var formyoda = {};
 
+formyoda.validation = {};
+
+formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Invalid Email'};
+
 formyoda.validation.blank = function(input){
   if($(input).val() == ''){
       $(input + '_yodalay').val(formyoda.validation.errors.blank);
@@ -9,8 +13,9 @@ formyoda.validation.blank = function(input){
 }
 
 formyoda.validation.email = function(input){
-  console.log(input);
-  return false;
+  var email = $(input).val();
+  var re = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+      return re.test(email);
 }
 
 formyoda.validate = function(inputs){
@@ -23,15 +28,13 @@ formyoda.validate = function(inputs){
           var id = '#' + propName;
         
           for(validateMethod in inputs[propName]){
-           if(!formyoda[inputs[propName][validateMethod]](id));
-              break;
+            if(!formyoda.validation[inputs[propName][validateMethod]](id));
+            break;
           }
         }
         return false;
       })
 };
-
-formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Invalid Email'};
 
 formyoda.add_yodalayers = function(inputs){
 
@@ -71,12 +74,12 @@ formyoda.add_yodalayers = function(inputs){
 
 } // end of add function
 
-/*$(document).ready(function(){
+$(document).ready(function(){
     
     formyoda.add_yodalayers({'username' : 'username...', 'mail' : 'email...'})
     formyoda.validate( { 'username' : ['blank'],  'mail': ['blank', 'email'] } );
   
-});*/
+});
 
 
 	
