@@ -1,3 +1,7 @@
+// Dependencies: JQuery
+
+if(typeof JQuery === 'undefined')
+    alert('JQuery is required for yodaforms to work');
 
 var formyoda = {};
 formyoda.labels = {inline : false};
@@ -95,7 +99,7 @@ formyoda.add_yodalabels = function(inputs){
 
 $(document).ready(function(){
    
-    formyoda.labels.inline = false;
+    formyoda.labels.inline = true;
     formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'})
     var validation = { 'username' : ['blank'],  'mail': ['blank', 'email'] };
         
