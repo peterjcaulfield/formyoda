@@ -12,7 +12,6 @@ formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Inv
 formyoda.validation.blank = function(input){
   if($(input).val() == ''){
       if(formyoda.labels.inline == true){
-        console.log('here');
         $(input + '_yodalay').html(formyoda.validation.errors.blank);
       }
       else
@@ -29,7 +28,6 @@ formyoda.validation.email = function(input){
   if(!regex.test(email)){
     $(input).val('');
     if(formyoda.labels.inline == true){
-      console.log('here');
       $(input + '_yodalay').html(formyoda.validation.errors.blank);
     }
     else
@@ -101,8 +99,7 @@ formyoda.add_yodalabels = function(inputs){
       
    
     }else
-    {
-     
+    {  
       $(id).parent().css({'position': 'relative'});
       var topPos = $(id).position().top;
       var leftPos = ($(id).width() + 20);
