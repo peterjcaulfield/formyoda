@@ -104,7 +104,11 @@ formyoda.add_yodalabels = function(inputs){
       $(id).focus(function(){
             var  elem_id = $(this).attr('id');
             if($('#' + elem_id + '_yodalay').hasClass('error'))
-              $('#' + elem_id + '_yodalay').removeClass('error');
+            $('#' + elem_id + '_yodalay').removeClass('error');
+            $('#' +  elem_id + '_yodalay').val(formyoda.yodalabels[elem_id]);
+        });
+    
+      $(id).blur(function(){
         });
     }
   } // end of loop
