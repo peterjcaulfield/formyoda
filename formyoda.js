@@ -1,9 +1,9 @@
 
-var yodalayer = {};
+var formyoda = {};
 
-yodalayer.add = function(inputs){
+formyoda.add_yodalayers = function(inputs){
 
-  yodalayer.yodalayers = inputs;
+  formyoda.yodalayers = inputs;
 
   for(var propName in inputs){
     
@@ -32,7 +32,7 @@ yodalayer.add = function(inputs){
     $(id).blur(function(){
             elem_id = $(this).attr('id');
             if($(this).val() == '')    
-              $('#' +  elem_id + '_yodalay').val(yodalayer.yodalayers[elem_id]);
+              $('#' +  elem_id + '_yodalay').val(formyoda.yodalayers[elem_id]);
         });
 
   } // end of loop
