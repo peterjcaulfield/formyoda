@@ -14,8 +14,6 @@ formyoda.validation.email = function(input){
 }
 
 formyoda.validate = function(inputs){
-  
-  formyoda_yodaerrors = inputs;
 
   $('form').submit(function(){
         
