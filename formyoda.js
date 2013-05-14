@@ -11,8 +11,13 @@ formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Inv
 
 formyoda.validation.blank = function(input){
   if($(input).val() == ''){
-      $(input + '_yodalay').val(formyoda.validation.errors.blank);
-      $(input + '_yodalay').addClass('error');
+      if(formyoda.labels.inline == true){
+        console.log('here');
+        $(input + '_yodalay').html(formyoda.validation.errors.blank);
+      }
+      else
+        $(input + '_yodalay').val(formyoda.validation.errors.blank);
+        $(input + '_yodalay').addClass('error');
       return false;
   }
   return true;
@@ -23,8 +28,13 @@ formyoda.validation.email = function(input){
   var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
   if(!regex.test(email)){
     $(input).val('');
-    $(input + '_yodalay').val(formyoda.validation.errors.email);
-    $(input + '_yodalay').addClass('error');
+    if(formyoda.labels.inline == true){
+      console.log('here');
+      $(input + '_yodalay').html(formyoda.validation.errors.blank);
+    }
+    else
+      $(input + '_yodalay').val(formyoda.validation.errors.email);
+      $(input + '_yodalay').addClass('error');
     return  false;
   }
   return true;
@@ -97,15 +107,15 @@ formyoda.add_yodalabels = function(inputs){
       var topPos = $(id).position().top;
       var leftPos = ($(id).width() + 20);
       $(id).parent().css({'position': 'relative'});
-      $(id).parent().append('<input id="' + yodaid + '"/>');
-      $('#' + yodaid).val(inputs[propName]);
+      $(id).parent().append('<div id="' + yodaid + '"></div>');
+      $('#' + yodaid).html(inputs[propName]);
       $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
 
       $(id).focus(function(){
             var  elem_id = $(this).attr('id');
             if($('#' + elem_id + '_yodalay').hasClass('error'))
             $('#' + elem_id + '_yodalay').removeClass('error');
-            $('#' +  elem_id + '_yodalay').val(formyoda.yodalabels[elem_id]);
+            $('#' +  elem_id + '_yodalay').html(formyoda.yodalabels[elem_id]);
         });
     
       $(id).blur(function(){
