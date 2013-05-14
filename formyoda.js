@@ -1,7 +1,8 @@
 // Dependencies: JQuery
-
-if(typeof JQuery === 'undefined')
+if(document.readyState === "complete") {
+  if(typeof JQuery === 'undefined')
     alert('JQuery is required for yodaforms to work');
+}
 
 var formyoda = {};
 formyoda.labels = {inline : false};
@@ -11,6 +12,7 @@ formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Inv
 formyoda.validation.blank = function(input){
   if($(input).val() == ''){
       $(input + '_yodalay').val(formyoda.validation.errors.blank);
+      $(input + '_yodalay').addClass('error');
       return false;
   }
   return true;
@@ -22,6 +24,7 @@ formyoda.validation.email = function(input){
   if(!regex.test(email)){
     $(input).val('');
     $(input + '_yodalay').val(formyoda.validation.errors.email);
+    $(input + '_yodalay').addClass('error');
     return  false;
   }
   return true;
@@ -75,6 +78,9 @@ formyoda.add_yodalabels = function(inputs){
             var elem_id = $(this).attr('id');
             if($(this).val() == '')      
               $('#' +  elem_id + '_yodalay').val('');
+            if($('#' +  elem_id + '_yodalay').hasClass('error')){
+                $('#' +  elem_id + '_yodalay').removeClass('error');
+               }
          });
 
       $(id).blur(function(){
@@ -86,6 +92,7 @@ formyoda.add_yodalabels = function(inputs){
    
     }else
     {
+     
       $(id).parent().css({'position': 'relative'});
       var topPos = $(id).position().top;
       var leftPos = ($(id).width() + 20);
@@ -93,6 +100,12 @@ formyoda.add_yodalabels = function(inputs){
       $(id).parent().append('<input id="' + yodaid + '"/>');
       $('#' + yodaid).val(inputs[propName]);
       $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
+
+      $(id).focus(function(){
+            var  elem_id = $(this).attr('id');
+            if($('#' + elem_id + '_yodalay').hasClass('error'))
+              $('#' + elem_id + '_yodalay').removeClass('error');
+        });
     }
   } // end of loop
 } // end of add function
