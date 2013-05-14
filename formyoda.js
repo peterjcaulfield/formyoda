@@ -59,6 +59,10 @@ formyoda.add_yodalabels = function(inputs){
       
       var topPos = $(id).position().top;
       var leftPos = $(id).position().left;
+    
+      $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
+      $(id).parent().append('<input id="' + yodaid + '"/>');
+      $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
       // set initial input value
       $('#' + yodaid).val(inputs[propName]);
   
@@ -75,9 +79,6 @@ formyoda.add_yodalabels = function(inputs){
               $('#' +  elem_id + '_yodalay').val(formyoda.yodalabels[elem_id]);
         });
       
-      $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
-      $(id).parent().append('<input id="' + yodaid + '"/>');
-      $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
    
     }else
     {
