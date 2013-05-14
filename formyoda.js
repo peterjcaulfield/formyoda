@@ -10,12 +10,18 @@ formyoda.validation.blank = function(input){
       $(input + '_yodalay').val(formyoda.validation.errors.blank);
       return false;
   }
+  return true;
 }
 
 formyoda.validation.email = function(input){
   var email = $(input).val();
-  var re = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-      return re.test(email);
+  var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
+  if(!regex.test(email)){
+    $(input).val('');
+    $(input + '_yodalay').val(formyoda.validation.errors.email);
+    return  false;
+  }
+  return true;
 }
 
 formyoda.validate = function(inputs){
@@ -28,8 +34,8 @@ formyoda.validate = function(inputs){
           var id = '#' + propName;
         
           for(validateMethod in inputs[propName]){
-            if(!formyoda.validation[inputs[propName][validateMethod]](id));
-            break;
+            if(!formyoda.validation[inputs[propName][validateMethod]](id))
+              break;
           }
         }
         return false;
