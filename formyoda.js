@@ -26,21 +26,24 @@ formyoda.validation.email = function(input){
 
 formyoda.validate = function(inputs){
 
-  $('form').submit(function(){
-        
-        for(propName in inputs){
+  errors = false;
+
+  for(propName in inputs){
           
-          var error = false;
-          var id = '#' + propName;
+    var id = '#' + propName;
         
-          for(validateMethod in inputs[propName]){
-            if(!formyoda.validation[inputs[propName][validateMethod]](id))
-              break;
+    for(validateMethod in inputs[propName]){
+        if(!formyoda.validation[inputs[propName][validateMethod]](id)){
+          errors = true;
+          break;
           }
-        }
-        return false;
-      })
-};
+    }
+  }
+        if(errors)
+          return false;
+        else
+          return true;
+}
 
 formyoda.add_yodalayers = function(inputs){
 
@@ -83,8 +86,14 @@ formyoda.add_yodalayers = function(inputs){
 $(document).ready(function(){
     
     formyoda.add_yodalayers({'username' : 'username...', 'mail' : 'email...'})
-    formyoda.validate( { 'username' : ['blank'],  'mail': ['blank', 'email'] } );
-  
+    var validation = { 'username' : ['blank'],  'mail': ['blank', 'email'] };
+        
+    $('form').submit(function(){
+        
+        if(!formyoda.validate(validation))
+          return false;
+        
+        })
 });
 
 
