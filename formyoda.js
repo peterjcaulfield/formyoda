@@ -86,7 +86,7 @@ function Formyoda(){
             if (!this.validation[inputs[propName][i][0]].apply(null, params)){  
                 errors = true;
                 break;
-           }
+             }
           // else we are dealing with a string representing name of validate function
           }else
           {
@@ -108,7 +108,7 @@ function Formyoda(){
   * Function for adding labels to selected inputs with default placeholder  
   */
 
-  this.add_yodalabels = function(inputs){
+this.add_yodalabels = function(inputs){
     this.yodalabels = inputs;
     for(var propName in inputs){
     
