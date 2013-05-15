@@ -78,8 +78,8 @@ function Formyoda(){
     }
     return true;
   }
-  this.validation.fileformat = function(input, formats){
-      
+  // check uploaded file extension against passed in array of accepted formats
+  this.validation.fileformat = function(input, formats){   
     var ext =  $(input).val().split('.').pop().toLowerCase();
     if($.inArray(ext, formats) == -1) {
       $(input).val('');
