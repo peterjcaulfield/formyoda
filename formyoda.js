@@ -20,11 +20,13 @@ function Formyoda(){
   this.validation.errors = {  blank : 'Please fill out this field',
                               email : 'Invalid Email', 
                               maxchars : 'Too long',
-                              minchars : 'Too short'  };
+                              minchars : 'Too short',
+                              numeric : 'Not numeric' };
 
   /*
   * Validation functions
   */
+  // check blank
   this.validation.blank = function(input){
     if ($(input).val() == ''){
         $(input + '_yodalabel').html(that.validation.errors.blank);
@@ -33,7 +35,7 @@ function Formyoda(){
     }
     return true;
   } 
-
+  // check email
   this.validation.email = function(input){
     var email = $(input).val();
     var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
@@ -45,7 +47,7 @@ function Formyoda(){
     }
     return true;
   }
-
+  // check length against max chars
   this.validation.max = function(input, max){
     if ($(input).val().length > max){
         $(input).val('');
@@ -55,7 +57,7 @@ function Formyoda(){
     }
     return true;
   }
-
+  // check length against min chars
   this.validation.min = function(input, min){
     if ($(input).val().length < max){
         $(input).val('');
@@ -65,7 +67,19 @@ function Formyoda(){
     }
     return true;
   }
-
+  // check if its a number
+  this.validation.numeric = function(input){
+    if(typeof $(input).val() !== 'number')
+      $(input).val('');
+      $(input + '_yodalabel').html(that.validation.errors.numeric);
+      $(input + '_yodalabel').addClass('error');
+      return false
+    }
+    return true;
+  }
+  /*
+  * Main validate method. Parses validation array and calls appropriate methods. 
+  */
   this.validate = function(inputs){
     errors = false;
 
@@ -177,9 +191,12 @@ this.add_yodalabels = function(inputs){
 $(document).ready(function(){
 
     var formyoda = new Formyoda();
-    var validation = { 'username' : [ ['max', 10] , 'blank' ], 'mail' : ['blank', 'email']  };     
+    var validation = { 
+                        'username' : [ [ 'max', 10 ] , 'blank' ], 
+                        'mail' : [ 'blank', 'email' ]               };     
 
-    formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'});
+    formyoda.add_yodalabels( { 'username' : 'username...', 
+                                'mail' : 'email...'         } );
    
     $('form').submit(function(){
         if (!formyoda.validate(validation))
