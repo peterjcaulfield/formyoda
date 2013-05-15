@@ -7,7 +7,7 @@ if(document.readyState === "complete") {
 var formyoda = {};
 formyoda.labels = {inline : false};
 formyoda.validation = {};
-formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Invalid Email'};
+formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Invalid Email', maxchars : 'Too many characters'};
 
 formyoda.validation.blank = function(input){
   if($(input).val() == ''){
@@ -30,6 +30,19 @@ formyoda.validation.email = function(input){
   return true;
 }
 
+formyoda.validation.max = function(array){
+  
+  if($(array[0]).val().length > array[1]){
+    $(array[0]).val('');
+    $(array[0] + '_yodalay').html(formyoda.validation.errors.maxchars);
+    $(array[0] + '_yodalay').addClass('error');
+    return false;
+  }
+  return true;
+}
+
+
+
 formyoda.validate = function(inputs){
 
   errors = false;
@@ -37,18 +50,35 @@ formyoda.validate = function(inputs){
   for(propName in inputs){
           
     var id = '#' + propName;
-        
-    for(validateMethod in inputs[propName]){
-        if(!formyoda.validation[inputs[propName][validateMethod]](id)){
-          errors = true;
-          break;
+  
+    for(var i = 0; i < inputs[propName].length; i++){
+
+      if(typeof inputs[propName][i] === 'object'){
+          
+          params = Array();
+          params.push(id);
+          for(var j = 1; j < inputs[propName][i].length;j++){ 
+            params.push(inputs[propName][i][j]);
           }
+         
+          if(!formyoda.validation[inputs[propName][i][0]](params)){  
+            errors = true;
+            break;
+          }
+        }else
+        {
+          if(!formyoda.validation[inputs[propName][i]](id)){
+            errors = true;
+             break;
+           }
+        }
     }
   }
-        if(errors)
-          return false;
-        else
-          return true;
+  
+  if(errors)
+    return false;
+  else
+  return true;
 }
 
 formyoda.add_yodalabels = function(inputs){
@@ -117,13 +147,12 @@ $(document).ready(function(){
    
     formyoda.labels.inline = false;
     formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'})
-    var validation = { 'username' : ['blank'],  'mail': ['blank', 'email'] };
-        
+    
+    var validation = { 'username' : [ ['max', 10] , 'blank' ], 'mail' : ['blank', 'email']  };     
     $('form').submit(function(){
         
         if(!formyoda.validate(validation))
           return false;
-        
         })
 });
 
