@@ -28,7 +28,7 @@ formyoda.validation.email = function(input){
   if(!regex.test(email)){
     $(input).val('');
     if(formyoda.labels.inline == true){
-      $(input + '_yodalay').html(formyoda.validation.errors.blank);
+      $(input + '_yodalay').html(formyoda.validation.errors.email);
     }
     else
       $(input + '_yodalay').val(formyoda.validation.errors.email);
