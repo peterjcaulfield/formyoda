@@ -3,7 +3,7 @@ if(document.readyState === "complete") {
   if(typeof JQuery === 'undefined')
     alert('JQuery is required for formyoda to work');
 }
-
+// constuctor
 function Formyoda(){
   // get reference to this for when we are nested and need ref to parent
   var that = this;
@@ -142,10 +142,10 @@ function Formyoda(){
     
         $(id).blur(function(){
           });
-      }
+      }// end of else
     } // end of loop
   } // end of add function
-}
+}// end of constructor
 // usage
 $(document).ready(function(){
 
