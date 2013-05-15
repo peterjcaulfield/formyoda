@@ -31,7 +31,6 @@ formyoda.validation.email = function(input){
 }
 
 formyoda.validation.max = function(array){
-  
   if($(array[0]).val().length > array[1]){
     $(array[0]).val('');
     $(array[0] + '_yodalay').html(formyoda.validation.errors.maxchars);
@@ -44,7 +43,6 @@ formyoda.validation.max = function(array){
 
 
 formyoda.validate = function(inputs){
-
   errors = false;
 
   for(propName in inputs){
@@ -52,9 +50,9 @@ formyoda.validate = function(inputs){
     var id = '#' + propName;
   
     for(var i = 0; i < inputs[propName].length; i++){
-
+      // check if validate property is an object. If so we have array of function name + arguments
       if(typeof inputs[propName][i] === 'object'){
-          
+          // params array includes id of form inputs and the function arguments 
           params = Array();
           params.push(id);
           for(var j = 1; j < inputs[propName][i].length;j++){ 
@@ -65,6 +63,7 @@ formyoda.validate = function(inputs){
             errors = true;
             break;
           }
+        // else we are dealing with a string representing name of validate function
         }else
         {
           if(!formyoda.validation[inputs[propName][i]](id)){
@@ -74,7 +73,7 @@ formyoda.validate = function(inputs){
         }
     }
   }
-  
+  //if we have errors validation has failed
   if(errors)
     return false;
   else
@@ -82,7 +81,6 @@ formyoda.validate = function(inputs){
 }
 
 formyoda.add_yodalabels = function(inputs){
-
   formyoda.yodalabels = inputs;
 
   for(var propName in inputs){
@@ -91,6 +89,8 @@ formyoda.add_yodalabels = function(inputs){
     var yodaid = propName + '_yodalay';
     
     if(formyoda.labels.inline == false){
+      // if not inline, labels are displayed behind the form inputs like placeholders
+      
       // this allows us to get the relative position of the inputs
       $(id).parent().css({'position': 'relative'});
       
@@ -121,7 +121,7 @@ formyoda.add_yodalabels = function(inputs){
       
    
     }else
-    {  
+    { // we are dealing with labels to be displayed inline with the inputs 
       $(id).parent().css({'position': 'relative'});
       var topPos = $(id).position().top;
       var leftPos = ($(id).width() + 20);
@@ -143,8 +143,9 @@ formyoda.add_yodalabels = function(inputs){
   } // end of loop
 } // end of add function
 
+// usage
 $(document).ready(function(){
-   
+
     formyoda.labels.inline = false;
     formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'})
     
