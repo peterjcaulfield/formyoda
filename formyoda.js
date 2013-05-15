@@ -21,7 +21,8 @@ function Formyoda(){
                               email : 'Invalid Email', 
                               maxchars : 'Too long',
                               minchars : 'Too short',
-                              numeric : 'Not numeric' };
+                              numeric : 'Not numeric',
+                              fileformat :'Invalid file format' };
 
   /*
   * Validation functions
@@ -72,6 +73,17 @@ function Formyoda(){
     if(typeof $(input).val() !== 'number')
       $(input).val('');
       $(input + '_yodalabel').html(that.validation.errors.numeric);
+      $(input + '_yodalabel').addClass('error');
+      return false
+    }
+    return true;
+  }
+  this.validation.fileformat = function(input, formats){
+      
+    var ext =  $(input).val().split('.').pop().toLowerCase();
+    if($.inArray(ext, formats) == -1) {
+      $(input).val('');
+      $(input + '_yodalabel').html(that.validation.errors.fileformat);
       $(input + '_yodalabel').addClass('error');
       return false
     }
@@ -156,7 +168,6 @@ this.add_yodalabels = function(inputs){
            });
 
         $(id).blur(function(){
-          
           var  elem_id = $(this).attr('id');
           if ($(this).val() == '')
               $('#' +  elem_id + '_yodalabel').html(that.yodalabels[elem_id]);
