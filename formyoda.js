@@ -1,7 +1,7 @@
 // Dependencies: JQuery
-if(document.readyState === "complete") {
-  if(typeof JQuery === 'undefined')
-    alert('JQuery is required for formyoda to work');
+if (document.readyState === "complete") {
+  if (typeof JQuery === 'undefined')
+    alert ('JQuery is required for formyoda to work');
 }
 // constuctor
 function Formyoda(){
@@ -22,7 +22,7 @@ function Formyoda(){
   * Validation functions
   */
   this.validation.blank = function(input){
-    if($(input).val() == ''){
+    if ($(input).val() == ''){
         $(input + '_yodalabel').html(that.validation.errors.blank);
         $(input + '_yodalabel').addClass('error');
         return false;
@@ -33,20 +33,20 @@ function Formyoda(){
   this.validation.email = function(input){
     var email = $(input).val();
     var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
-    if(!regex.test(email)){
-      $(input).val('');
-      $(input + '_yodalabel').html(that.validation.errors.email);
-      $(input + '_yodalabel').addClass('error');
+    if (!regex.test(email)){
+        $(input).val('');
+        $(input + '_yodalabel').html(that.validation.errors.email);
+        $(input + '_yodalabel').addClass('error');
       return  false;
     }
     return true;
   }
 
   this.validation.max = function(input, max){
-    if($(input).val().length > max){
-      $(input).val('');
-      $(input + '_yodalabel').html(that.validation.errors.maxchars);
-      $(input + '_yodalabel').addClass('error');
+    if ($(input).val().length > max){
+        $(input).val('');
+        $(input + '_yodalabel').html(that.validation.errors.maxchars);
+        $(input + '_yodalabel').addClass('error');
       return false;
     }
     return true;
@@ -61,7 +61,7 @@ function Formyoda(){
   
       for(var i = 0; i < inputs[propName].length; i++){
         // check if validate property is an object. If so we have array of function name + arguments
-        if(typeof inputs[propName][i] === 'object'){
+        if (typeof inputs[propName][i] === 'object'){
             // params array includes id of form inputs and the function arguments 
             params = Array();
             params.push(id);
@@ -69,22 +69,22 @@ function Formyoda(){
               params.push(inputs[propName][i][j]);
             } 
          
-            if(!this.validation[inputs[propName][i][0]].apply(null, params)){  
-              errors = true;
-              break;
+            if (!this.validation[inputs[propName][i][0]].apply(null, params)){  
+                errors = true;
+                break;
            }
           // else we are dealing with a string representing name of validate function
           }else
           {
-            if(!this.validation[inputs[propName][i]](id)){
-              errors = true;
-               break;
+            if (!this.validation[inputs[propName][i]](id)){
+                errors = true;
+                break;
              }
           }
       }
     }
     //if we have errors validation has failed
-    if(errors)
+    if (errors)
       return false;
     else
       return true;
@@ -101,7 +101,7 @@ function Formyoda(){
       var id = '#' + propName;
       var yodaid = propName + '_yodalabel';
     
-      if(this.labels.inline == false){
+      if (this.labels.inline == false){
          // if not inline, labels are displayed behind the form inputs like placeholders
       
         // this allows us to get the relative position of the inputs
@@ -120,17 +120,17 @@ function Formyoda(){
         // bind to input focus and blur
         $(id).focus(function(){
             var elem_id = $(this).attr('id');
-            if($(this).val() == '')      
-              $('#' +  elem_id + '_yodalabel').html('');
-            if($('#' +  elem_id + '_yodalabel').hasClass('error')){
+            if ($(this).val() == '')      
+                $('#' +  elem_id + '_yodalabel').html('');
+            if ($('#' +  elem_id + '_yodalabel').hasClass('error')){
                 $('#' +  elem_id + '_yodalabel').removeClass('error');
                }
            });
 
         $(id).blur(function(){
           
-           var  elem_id = $(this).attr('id');
-            if($(this).val() == '')
+          var  elem_id = $(this).attr('id');
+          if ($(this).val() == '')
               $('#' +  elem_id + '_yodalabel').html(that.yodalabels[elem_id]);
           });
 
@@ -169,7 +169,7 @@ $(document).ready(function(){
    
     $('form').submit(function(){
         
-        if(!formyoda.validate(validation))
+        if (!formyoda.validate(validation))
           return false;
         })
 });
