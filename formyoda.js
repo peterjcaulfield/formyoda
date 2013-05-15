@@ -1,7 +1,7 @@
 // Dependencies: JQuery
 if(document.readyState === "complete") {
   if(typeof JQuery === 'undefined')
-    alert('JQuery is required for yodaforms to work');
+    alert('JQuery is required for formyoda to work');
 }
 
 var formyoda = {};
