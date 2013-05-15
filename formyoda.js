@@ -7,7 +7,7 @@ if(document.readyState === "complete") {
 function Formyoda(){
   /*
   * Initialisation 
-   */
+  */
 
   // get reference to this for when we are nested and need ref to parent
   var that = this;
@@ -162,11 +162,11 @@ function Formyoda(){
 // usage
 $(document).ready(function(){
 
-    //    formyoda.labels.inline = false;
     var formyoda = new Formyoda();
-    formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'})
-    
     var validation = { 'username' : [ ['max', 10] , 'blank' ], 'mail' : ['blank', 'email']  };     
+
+    formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'});
+   
     $('form').submit(function(){
         
         if(!formyoda.validate(validation))
