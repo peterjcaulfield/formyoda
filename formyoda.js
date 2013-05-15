@@ -42,11 +42,11 @@ function Formyoda(){
     return true;
   }
 
-  this.validation.max = function(array){
-    if($(array[0]).val().length > array[1]){
-      $(array[0]).val('');
-      $(array[0] + '_yodalabel').html(that.validation.errors.maxchars);
-      $(array[0] + '_yodalabel').addClass('error');
+  this.validation.max = function(input, max){
+    if($(input).val().length > max){
+      $(input).val('');
+      $(input + '_yodalabel').html(that.validation.errors.maxchars);
+      $(input + '_yodalabel').addClass('error');
       return false;
     }
     return true;
@@ -69,7 +69,7 @@ function Formyoda(){
               params.push(inputs[propName][i][j]);
             } 
          
-            if(!this.validation[inputs[propName][i][0]](params)){  
+            if(!this.validation[inputs[propName][i][0]].apply(null, params)){  
               errors = true;
               break;
            }
