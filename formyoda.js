@@ -182,7 +182,6 @@ $(document).ready(function(){
     formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'});
    
     $('form').submit(function(){
-        
         if (!formyoda.validate(validation))
           return false;
         })
