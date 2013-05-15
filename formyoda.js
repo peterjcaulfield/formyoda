@@ -3,7 +3,7 @@ if (document.readyState === "complete") {
   if (typeof JQuery === 'undefined')
     alert ('JQuery is required for formyoda to work');
 }
-// constuctor
+// constructor
 function Formyoda(){
   /*
   * Initialisation 
@@ -13,6 +13,7 @@ function Formyoda(){
   var that = this;
   // defaults to labels behind inputs
   this.labels = {inline : false};
+ 
   // validation initialization
   this.validation = {};
   // error messages for each validation function
