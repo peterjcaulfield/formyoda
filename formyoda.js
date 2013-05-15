@@ -16,7 +16,10 @@ function Formyoda(){
   // validation initialization
   this.validation = {};
   // error messages for each validation function
-  this.validation.errors = {blank : 'Please fill out this field', email : 'Invalid Email', maxchars : 'Too many characters'};
+  this.validation.errors = {  blank : 'Please fill out this field',
+                              email : 'Invalid Email', 
+                              maxchars : 'Too long',
+                              minchars : 'Too short'  };
 
   /*
   * Validation functions
@@ -46,6 +49,16 @@ function Formyoda(){
     if ($(input).val().length > max){
         $(input).val('');
         $(input + '_yodalabel').html(that.validation.errors.maxchars);
+        $(input + '_yodalabel').addClass('error');
+      return false;
+    }
+    return true;
+  }
+
+  this.validation.min = function(input, min){
+    if ($(input).val().length < max){
+        $(input).val('');
+        $(input + '_yodalabel').html(that.validation.errors.minchars);
         $(input + '_yodalabel').addClass('error');
       return false;
     }
