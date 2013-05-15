@@ -11,12 +11,8 @@ formyoda.validation.errors = {blank : 'Please fill out this field', email : 'Inv
 
 formyoda.validation.blank = function(input){
   if($(input).val() == ''){
-      if(formyoda.labels.inline == true){
-        $(input + '_yodalay').html(formyoda.validation.errors.blank);
-      }
-      else
-        $(input + '_yodalay').val(formyoda.validation.errors.blank);
-        $(input + '_yodalay').addClass('error');
+      $(input + '_yodalay').html(formyoda.validation.errors.blank);
+      $(input + '_yodalay').addClass('error');
       return false;
   }
   return true;
@@ -26,13 +22,9 @@ formyoda.validation.email = function(input){
   var email = $(input).val();
   var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
   if(!regex.test(email)){
-    $(input).val('');
-    if(formyoda.labels.inline == true){
-      $(input + '_yodalay').html(formyoda.validation.errors.email);
-    }
-    else
-      $(input + '_yodalay').val(formyoda.validation.errors.email);
-      $(input + '_yodalay').addClass('error');
+     $(input).val('');
+     $(input + '_yodalay').html(formyoda.validation.errors.email);
+    $(input + '_yodalay').addClass('error');
     return  false;
   }
   return true;
@@ -72,20 +64,20 @@ formyoda.add_yodalabels = function(inputs){
       // this allows us to get the relative position of the inputs
       $(id).parent().css({'position': 'relative'});
       
-      var topPos = $(id).position().top;
-      var leftPos = $(id).position().left;
+      var topPos = $(id).position().top + 3;
+      var leftPos = $(id).position().left + 5;
     
       $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
-      $(id).parent().append('<input id="' + yodaid + '"/>');
+      $(id).parent().append('<div id="' + yodaid + '"></div>');
       $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
       // set initial input value
-      $('#' + yodaid).val(inputs[propName]);
+      $('#' + yodaid).html(inputs[propName]);
   
       // bind to input focus and blur
       $(id).focus(function(){
             var elem_id = $(this).attr('id');
             if($(this).val() == '')      
-              $('#' +  elem_id + '_yodalay').val('');
+              $('#' +  elem_id + '_yodalay').html('');
             if($('#' +  elem_id + '_yodalay').hasClass('error')){
                 $('#' +  elem_id + '_yodalay').removeClass('error');
                }
@@ -94,7 +86,7 @@ formyoda.add_yodalabels = function(inputs){
       $(id).blur(function(){
            var  elem_id = $(this).attr('id');
             if($(this).val() == '')    
-              $('#' +  elem_id + '_yodalay').val(formyoda.yodalabels[elem_id]);
+              $('#' +  elem_id + '_yodalay').html(formyoda.yodalabels[elem_id]);
         });
       
    
@@ -123,7 +115,7 @@ formyoda.add_yodalabels = function(inputs){
 
 $(document).ready(function(){
    
-    formyoda.labels.inline = true;
+    formyoda.labels.inline = false;
     formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'})
     var validation = { 'username' : ['blank'],  'mail': ['blank', 'email'] };
         
