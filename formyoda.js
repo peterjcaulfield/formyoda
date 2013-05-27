@@ -20,8 +20,10 @@ function Formyoda(){
                              blank : 'Please fill out this field',
                              email : 'Invalid Email',
                              maxchars : 'Too many characters',
-                             minchars : 'Too few characters'
-                                                                 };
+                             minchars : 'Too few characters',
+                             numeric : 'Must be a number',
+                             format : 'Invalid format'
+                                                        };
 
   /*
   * Validation functions
@@ -67,6 +69,25 @@ function Formyoda(){
     return true;
   }
 
+  this.validation.numeric = function(input){
+    if(typeof $(input).val() != 'number'){
+      $(input).val('');
+      $(input + '_yodalabel .yodalabel').html(that.validation.errors.numeric);
+      $(input + '_yodalabel .yodalabel').addClass('error');
+      return false;
+    }
+    return true
+  }
+
+  this.validation.format = function(input, regex){
+    if(!regex.test($(input).val())){
+      $(input).val('');
+      $(input + '_yodalabel .yodalabel').html(that.validation.errors.format);
+      $(input + '_yodalabel .yodalabel').addClass('error');
+    }
+    return true
+  }
+  // validation master 
   this.validate = function(inputs){
     errors = false;
 
@@ -110,15 +131,15 @@ function Formyoda(){
   */
 
   this.add_yodalabels = function(inputs){
+
     this.yodalabels = inputs;
+
     for(var propName in inputs){
 
       var id = '#' + propName;
       var yodaid = propName + '_yodalabel';
-
        // if not inline, labels are displayed behind the form inputs like placeholders
       if(this.labels.inline == false){
-
         // this allows us to get the relative position of the inputs
         $(id).parent().css({'position': 'relative'});
 
