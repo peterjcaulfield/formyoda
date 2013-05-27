@@ -84,8 +84,9 @@ function Formyoda(){
       $(input).val('');
       $(input + '_yodalabel .yodalabel').html(that.validation.errors.format);
       $(input + '_yodalabel .yodalabel').addClass('error');
+      return false;
     }
-    return true
+    return true;
   }
   // validation master 
   this.validate = function(inputs){
