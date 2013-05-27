@@ -6,7 +6,7 @@ if(document.readyState === "complete") {
 // constuctor
 function Formyoda(){
   /*
-  * Initialisation 
+  * Initialisation
   */
 
   // get reference to this for when we are nested and need ref to parent
@@ -23,20 +23,20 @@ function Formyoda(){
   */
   this.validation.blank = function(input){
     if($(input).val() == ''){
-        $(input + '_yodalabel').html(that.validation.errors.blank);
-        $(input + '_yodalabel').addClass('error');
+        $(input + '_yodalabel .yodalabel').html(that.validation.errors.blank);
+        $(input + '_yodalabel .yodalabel').addClass('error');
         return false;
     }
     return true;
-  } 
+  }
 
   this.validation.email = function(input){
     var email = $(input).val();
     var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
     if(!regex.test(email)){
       $(input).val('');
-      $(input + '_yodalabel').html(that.validation.errors.email);
-      $(input + '_yodalabel').addClass('error');
+      $(input + '_yodalabel .yodalabel').html(that.validation.errors.email);
+      $(input + '_yodalabel .yodalabel').addClass('error');
       return  false;
     }
     return true;
@@ -45,8 +45,8 @@ function Formyoda(){
   this.validation.max = function(input, max){
     if($(input).val().length > max){
       $(input).val('');
-      $(input + '_yodalabel').html(that.validation.errors.maxchars);
-      $(input + '_yodalabel').addClass('error');
+      $(input + '_yodalabel .yodalabel').html(that.validation.errors.maxchars);
+      $(input + '_yodalabel .yodalabel').addClass('error');
       return false;
     }
     return true;
@@ -56,20 +56,20 @@ function Formyoda(){
     errors = false;
 
     for(propName in inputs){
-          
+
       var id = '#' + propName;
-  
+
       for(var i = 0; i < inputs[propName].length; i++){
         // check if validate property is an object. If so we have array of function name + arguments
         if(typeof inputs[propName][i] === 'object'){
-            // params array includes id of form inputs and the function arguments 
+            // params array includes id of form inputs and the function arguments
             params = Array();
             params.push(id);
-            for(var j = 1; j < inputs[propName][i].length;j++){ 
+            for(var j = 1; j < inputs[propName][i].length;j++){
               params.push(inputs[propName][i][j]);
-            } 
-         
-            if(!this.validation[inputs[propName][i][0]].apply(null, params)){  
+            }
+
+            if(!this.validation[inputs[propName][i][0]].apply(null, params)){
               errors = true;
               break;
            }
@@ -88,70 +88,74 @@ function Formyoda(){
       return false;
     else
       return true;
-  } 
+  }
 
   /*
-  * Function for adding labels to selected inputs with default placeholder  
+  * Function for adding labels to selected inputs with default placeholder
   */
 
   this.add_yodalabels = function(inputs){
     this.yodalabels = inputs;
     for(var propName in inputs){
-    
+
       var id = '#' + propName;
       var yodaid = propName + '_yodalabel';
-    
+
       if(this.labels.inline == false){
          // if not inline, labels are displayed behind the form inputs like placeholders
-      
+
         // this allows us to get the relative position of the inputs
         $(id).parent().css({'position': 'relative'});
-      
+
         var topPos = $(id).position().top + 3;
         var leftPos = $(id).position().left + 5;
-    
+
         $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
+	// add yoda label container div
         $(id).parent().append('<div id="' + yodaid + '"></div>');
-        $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
-        $('#' + yodaid).addClass('yodalabel');
+	$('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
+	// add yodalabel
+	$('#' + yodaid).append('<div class="yodalabel"></div>');
         // set initial input value
-        $('#' + yodaid).html(inputs[propName]);
-  
+        $('#' +  yodaid + ' .yodalabel').html(inputs[propName]);
+
         // bind to input focus and blur
         $(id).focus(function(){
-            var elem_id = $(this).attr('id');
-            if($(this).val() == '')      
-              $('#' +  elem_id + '_yodalabel').html('');
-            if($('#' +  elem_id + '_yodalabel').hasClass('error')){
-                $('#' +  elem_id + '_yodalabel').removeClass('error');
+            var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
+            if($(this).val() == '')
+              $(elem_id).html('');
+            if($(elem_id).hasClass('error')){
+                $(elem_id).removeClass('error');
                }
            });
 
         $(id).blur(function(){
-          
-           var  elem_id = $(this).attr('id');
+            var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
             if($(this).val() == '')
-              $('#' +  elem_id + '_yodalabel').html(that.yodalabels[elem_id]);
+              $(elem_id).html(that.yodalabels[$(this).attr('id')]);
           });
 
       }else
-      { // we are dealing with labels to be displayed inline with the inputs 
+      { // we are dealing with labels to be displayed inline with the inputs
         $(id).parent().css({'position': 'relative'});
         var topPos = $(id).position().top;
         var leftPos = ($(id).width() + 20);
         $(id).parent().css({'position': 'relative'});
+	// add the yodalabel container div
         $(id).parent().append('<div id="' + yodaid + '"></div>');
-        $('#' + yodaid).html(inputs[propName]);
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
-        $('#' + yodaid).addClass('yodalabel');
-
+	// append the label
+	$('#' + yodaid).append('<div class="yodalabel"></div>');
+	// set the initial input value
+	$('#' + yodaid + ' .yodalabel').html(inputs[propName]);
+ 
         $(id).focus(function(){
-            var  elem_id = $(this).attr('id');
-            if($('#' + elem_id + '_yodalabel').hasClass('error'))
-            $('#' + elem_id + '_yodalabel').removeClass('error');
-            $('#' +  elem_id + '_yodalabel').html(that.yodalabels[elem_id]);
+            var  elem_id = '#' + $(this).attr('id') + '_yodalabel .yodalabel';
+            if($(elem_id).hasClass('error'))
+            $(elem_id).removeClass('error');
+            $(elem_id).html(that.yodalabels[$(this).attr('id')]);
           });
-    
+
         $(id).blur(function(){
           });
       }// end of else
@@ -163,17 +167,13 @@ function Formyoda(){
 $(document).ready(function(){
 
     var formyoda = new Formyoda();
-    var validation = { 'username' : [ ['max', 10] , 'blank' ], 'mail' : ['blank', 'email']  };     
+    var validation = { 'username' : [ ['max', 10] , 'blank' ], 'mail' : ['blank', 'email']  };
 
     formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'});
-   
-    $('form').submit(function(){
-        
+
+    $('form').submit(function(){ 
         if(!formyoda.validate(validation))
           return false;
         })
 });
 
-
-	
-	
