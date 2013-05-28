@@ -113,15 +113,12 @@ function Formyoda(){
     for ( var field in validation ){
         // get input id   
         var elem_id = '#' + field;
-
         if(validation.hasOwnProperty(field)){
-          var field_obj  = validation[field]; 
-            
-          for ( var validation_method in field_obj.methods ){
-                
+          var field_obj  = validation[field];
+          // loop for validate methods for the form field  
+          for ( var validation_method in field_obj.methods ){    
             if(field_obj.methods.hasOwnProperty(validation_method)){
               var validation_opts = field_obj.methods[validation_method];
-
               var params = [];
               params.push(elem_id);       
               // check if there is a custom error msg and if so bind it in the global object for use in validation function
@@ -137,18 +134,18 @@ function Formyoda(){
                 if(!this.validation[validation_method].apply(null, params)){
                     errors = true;
                     break;
-                }
-              }
-            }
-          }
-        }
+                } // close if
+              } // close for loop
+            } // close if
+          } // close if
+        } // close for loop
 
     //if we have errors validation has failed
     if(errors)
       return false;
     else
       return true;
-  }
+  } // close validate function
 
   /*
   * Function for adding labels to selected inputs with default placeholder
@@ -159,26 +156,22 @@ function Formyoda(){
     this.yodalabels = inputs;
 
     for(var propName in inputs){
-
       var id = '#' + propName;
       var yodaid = propName + '_yodalabel';
        // if not inline, labels are displayed behind the form inputs like placeholders
       if(this.labels.inline == false){
         // this allows us to get the relative position of the inputs
         $(id).parent().css({'position': 'relative'});
-
         var topPos = $(id).position().top + 3;
         var leftPos = $(id).position().left + 5;
-
         $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
         // add yoda label container div
-              $(id).parent().append('<div id="' + yodaid + '"></div>');
+        $(id).parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
         // add yodalabel
         $('#' + yodaid).append('<div class="yodalabel"></div>');
         // set initial input value
         $('#' +  yodaid + ' .yodalabel').html(inputs[propName]);
-
         // bind to input focus and blur
         $(id).focus(function(){
             var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
@@ -188,7 +181,7 @@ function Formyoda(){
                 $(elem_id).removeClass('error');
                }
            });
-
+        
         $(id).blur(function(){
             var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
             if($(this).val() == '')
@@ -197,10 +190,8 @@ function Formyoda(){
 
       } else { // we are dealing with labels to be displayed inline with the inputs
         $(id).parent().css({'position': 'relative'});
-
         var topPos = $(id).position().top;
         var leftPos = ($(id).width() + 20);
-
         // add the yodalabel container div
         $(id).parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
@@ -208,7 +199,7 @@ function Formyoda(){
         $('#' + yodaid).append('<div class="yodalabel"></div>');
         // set the initial input value
         $('#' + yodaid + ' .yodalabel').html(inputs[propName]);
-
+        // bind focus and blur methods
         $(id).focus(function(){
             var  elem_id = '#' + $(this).attr('id') + '_yodalabel .yodalabel';
             if($(elem_id).hasClass('error'))
