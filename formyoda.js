@@ -171,11 +171,11 @@ function Formyoda(){
         var leftPos = $(id).position().left + 5;
 
         $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
-  // add yoda label container div
-        $(id).parent().append('<div id="' + yodaid + '"></div>');
-  $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
-  // add yodalabel
-  $('#' + yodaid).append('<div class="yodalabel"></div>');
+        // add yoda label container div
+              $(id).parent().append('<div id="' + yodaid + '"></div>');
+        $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
+        // add yodalabel
+        $('#' + yodaid).append('<div class="yodalabel"></div>');
         // set initial input value
         $('#' +  yodaid + ' .yodalabel').html(inputs[propName]);
 
@@ -195,20 +195,19 @@ function Formyoda(){
               $(elem_id).html(that.yodalabels[$(this).attr('id')]);
           });
 
-      }else
-      { // we are dealing with labels to be displayed inline with the inputs
+      } else { // we are dealing with labels to be displayed inline with the inputs
         $(id).parent().css({'position': 'relative'});
 
-  var topPos = $(id).position().top;
+        var topPos = $(id).position().top;
         var leftPos = ($(id).width() + 20);
 
-  // add the yodalabel container div
+        // add the yodalabel container div
         $(id).parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
-  // append the label
-  $('#' + yodaid).append('<div class="yodalabel"></div>');
-  // set the initial input value
-  $('#' + yodaid + ' .yodalabel').html(inputs[propName]);
+        // append the label
+        $('#' + yodaid).append('<div class="yodalabel"></div>');
+        // set the initial input value
+        $('#' + yodaid + ' .yodalabel').html(inputs[propName]);
 
         $(id).focus(function(){
             var  elem_id = '#' + $(this).attr('id') + '_yodalabel .yodalabel';
