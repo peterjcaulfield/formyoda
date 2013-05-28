@@ -156,11 +156,13 @@ function Formyoda(){
     this.yodalabels = inputs;
 
     for(var propName in inputs){
+      // get input id
       var id = '#' + propName;
+      // create yoda label container id
       var yodaid = propName + '_yodalabel';
        // if not inline, labels are displayed behind the form inputs like placeholders
       if(this.labels.inline == false){
-        // this allows us to get the relative position of the inputs
+        // set css
         $(id).parent().css({'position': 'relative'});
         var topPos = $(id).position().top + 3;
         var leftPos = $(id).position().left + 5;
@@ -189,6 +191,7 @@ function Formyoda(){
           });
 
       } else { // we are dealing with labels to be displayed inline with the inputs
+        // set css
         $(id).parent().css({'position': 'relative'});
         var topPos = $(id).position().top;
         var leftPos = ($(id).width() + 20);
