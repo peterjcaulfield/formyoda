@@ -113,6 +113,11 @@ function Formyoda(){
     for ( var field in validation ){
         // get input id   
         var elem_id = '#' + field;
+        // check if we were passed a valid form element id
+        if(!$(elem_id).length){
+          console.error('The form element id: \"' + field + '\" is not a valid id. Check your validation object');
+          return false; 
+        }
         if(validation.hasOwnProperty(field)){
           var field_obj  = validation[field];
           // loop for validate methods for the form field  
@@ -121,24 +126,34 @@ function Formyoda(){
               var validation_opts = field_obj.methods[validation_method];
               var params = [];
               params.push(elem_id);       
+              // check if validation function exists
+             if(typeof this.validation[validation_method] != 'function'){
+                console.error("Validation method: \"" +   validation_method +  '\" specified for form field: \"' + field + ' \"   does not exist. Check your validation object');
+                return false;
+             }
               // check if there is a custom error msg and if so bind it in the global object for use in validation function
               if(typeof validation_opts.error != 'undefined')
                 params.push(validation_opts.error)
               else 
                 params.push('default');
-              // check if validation function has arguments and if so apply them
-              if(typeof validation_opts.args != 'undefined') 
-                params = params.concat(validation_opts.args);
-                console.log(params);
-                // execute validate method
-                if(!this.validation[validation_method].apply(null, params)){
-                    errors = true;
-                    break;
-                } // close if
-              } // close for loop
-            } // close if
+              // check if there are arguments to validation method
+              if(typeof validation_opts.args != 'undefined') { 
+                if(!(validation_opts.args instanceof Array)) {
+                  console.error('Argument: \"' + validation_opts.args + '\" to validate method: \"' + validation_method +  '\" for form field: \"' + field + '\"  must be wrapped in an array. Check your validation object');
+                  return false;
+                }
+                else
+                  params = params.concat(validation_opts.args);
+              }
+              // execute validate method
+              if(!this.validation[validation_method].apply(null, params)){
+                errors = true;
+                break;
+              } // close if
+            } // close for loop
           } // close if
-        } // close for loop
+        } // close if
+    } // close for loop
 
     //if we have errors validation has failed
     if(errors)
@@ -155,27 +170,32 @@ function Formyoda(){
 
     this.yodalabels = inputs;
 
-    for(var propName in inputs){
-      // get input id
-      var id = '#' + propName;
+    for(var field in inputs){
+      // get element id
+      var elem_id = '#' + field;
+      // check if we were passed a valid form element id
+      if(!$(elem_id).length){
+        console.error('The form element id: \"' + field + '\" is not a valid id. Check your labels object');
+        return false; 
+      }
       // create yoda label container id
-      var yodaid = propName + '_yodalabel';
+      var yodaid = field + '_yodalabel';
        // if not inline, labels are displayed behind the form inputs like placeholders
       if(this.labels.inline == false){
         // set css
-        $(id).parent().css({'position': 'relative'});
-        var topPos = $(id).position().top + 3;
-        var leftPos = $(id).position().left + 5;
-        $(id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
+        $(elem_id).parent().css({'position': 'relative'});
+        var topPos = $(elem_id).position().top + 3;
+        var leftPos = $(elem_id).position().left + 5;
+        $(elem_id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
         // add yoda label container div
-        $(id).parent().append('<div id="' + yodaid + '"></div>');
+        $(elem_id).parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
         // add yodalabel
         $('#' + yodaid).append('<div class="yodalabel"></div>');
         // set initial input value
-        $('#' +  yodaid + ' .yodalabel').html(inputs[propName]);
+        $('#' +  yodaid + ' .yodalabel').html(inputs[field]);
         // bind to input focus and blur
-        $(id).focus(function(){
+        $(elem_id).focus(function(){
             var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
             if($(this).val() == '')
               $(elem_id).html('');
@@ -192,25 +212,25 @@ function Formyoda(){
 
       } else { // we are dealing with labels to be displayed inline with the inputs
         // set css
-        $(id).parent().css({'position': 'relative'});
-        var topPos = $(id).position().top;
-        var leftPos = ($(id).width() + 20);
+        $(elem_id).parent().css({'position': 'relative'});
+        var topPos = $(elem_id).position().top;
+        var leftPos = ($(elem_id).width() + 20);
         // add the yodalabel container div
-        $(id).parent().append('<div id="' + yodaid + '"></div>');
+        $(elem_id).parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
         // append the label
         $('#' + yodaid).append('<div class="yodalabel"></div>');
         // set the initial input value
-        $('#' + yodaid + ' .yodalabel').html(inputs[propName]);
+        $('#' + yodaid + ' .yodalabel').html(inputs[field]);
         // bind focus and blur methods
-        $(id).focus(function(){
+        $(elem_id).focus(function(){
             var  elem_id = '#' + $(this).attr('id') + '_yodalabel .yodalabel';
             if($(elem_id).hasClass('error'))
             $(elem_id).removeClass('error');
             $(elem_id).html(that.yodalabels[$(this).attr('id')]);
           });
 
-        $(id).blur(function(){
+        $(elem_id).blur(function(){
           });
       }// end of else
     } // end of loop
