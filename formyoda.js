@@ -1,3 +1,5 @@
+// todo: validation methods should only validate. Move failure behaviour to main validate loop
+
 // Dependencies: JQuery
 if(document.readyState === "complete") {
   if(typeof JQuery === 'undefined')
@@ -28,7 +30,7 @@ function Formyoda(){
   this.validation.fields = {};
   // stores user input on text fields so it's not wiped in validation when we have labels behind inputs
   // Logic still needs to be implemented in validation and focus methods
-  this.user.input = {};
+  this.user_input = {};
 
   /*
   * Validation functions
@@ -49,7 +51,9 @@ function Formyoda(){
     var email = $(id).val();
     var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
     if(!regex.test(email)){
-      $(id).val('');
+      if(that.labels.inline == false)
+        $(id).val('');
+      
       if(error != 'default')
            $(id + '_yodalabel .yodalabel').html(error);
       else   
@@ -62,6 +66,7 @@ function Formyoda(){
 
   this.validation.max = function(id, error, max){
     if($(id).val().length > max){
+      if(that.labels.inline == false);
       $(id).val('');
       if(error != 'default')
            $(id + '_yodalabel .yodalabel').html(error);
@@ -75,6 +80,7 @@ function Formyoda(){
 
   this.validation.min = function(id, error, min){
     if($(id).val().length < min){
+      if(that.labels.inline == false);
       $(id).val('');
       if(error != 'default')
            $(id + '_yodalabel .yodalabel').html(error);
@@ -88,6 +94,7 @@ function Formyoda(){
 
   this.validation.numeric = function(id, error){
     if(typeof $(id).val() != 'number'){
+      if(that.labels.inline == false);
       $(id).val('');
       if(error != 'default')
            $(id + '_yodalabel .yodalabel').html(error);
@@ -101,6 +108,7 @@ function Formyoda(){
 
   this.validation.format = function(id, error, regex){
     if(!regex.test($(input).val())){
+      if(that.labels.inline == false);
       $(id).val('');
       if(error != 'default')
         $(id + '_yodalabel .yodalabel').html(error);
@@ -118,6 +126,8 @@ function Formyoda(){
     for ( var field in this.validation.fields ){
         // get input id   
         var elem_id = '#' + field;
+        // store user input
+        this.user_input[field] = $(elem_id).val(); //tb
         // check if we were passed a valid form element id
         if(!$(elem_id).length){
           console.error('The form element id: \"' + field + '\" is not a valid id. Check your validation object');
@@ -201,15 +211,19 @@ function Formyoda(){
         $('#' +  yodaid + ' .yodalabel').html(inputs[field]);
         // bind to input focus and blur
         $(elem_id).focus(function(){
+            var id = $(this).attr('id');
             var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
-            if($(this).val() == '')
-              $(elem_id).html('');
+            $(elem_id).html('');
+            if($(elem_id).hasClass('error')){
+              $(this).val(that.user_input[id]);
+              that.user_input[id] = '';
+            }
             if($(elem_id).hasClass('error')){
                 $(elem_id).removeClass('error');
                }
            });
         
-        $(id).blur(function(){
+        $(elem_id).blur(function(){
             var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
             if($(this).val() == '')
               $(elem_id).html(that.yodalabels[$(this).attr('id')]);
@@ -229,10 +243,13 @@ function Formyoda(){
         $('#' + yodaid + ' .yodalabel').html(inputs[field]);
         // bind focus and blur methods
         $(elem_id).focus(function(){
+            var id = $(this).attr('id');
             var  elem_id = '#' + $(this).attr('id') + '_yodalabel .yodalabel';
-            if($(elem_id).hasClass('error'))
+            
+            if($(elem_id).hasClass('error')){
             $(elem_id).removeClass('error');
             $(elem_id).html(that.yodalabels[$(this).attr('id')]);
+            }
           });
 
         $(elem_id).blur(function(){
