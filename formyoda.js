@@ -1,5 +1,3 @@
-// todo: validation methods should only validate. Move failure behaviour to main validate loop
-
 // Dependencies: JQuery
 if(document.readyState === "complete") {
   if(typeof JQuery === 'undefined')
@@ -24,12 +22,11 @@ function Formyoda(){
                              min : 'Too few characters you have',
                              numeric : 'A number this must be',
                              format : 'Invalid format this is'
-                                                        };
+                                                                    };
   this.validation.unique_errors = {};
   // stores user validation options
   this.validation.fields = {};
   // stores user input on text fields so it's not wiped in validation when we have labels behind inputs
-  // Logic still needs to be implemented in validation and focus methods
   this.user_input = {};
 
   /*
@@ -43,10 +40,10 @@ function Formyoda(){
         $(id).val('');
 
     if (error != 'default')
-          $(id + '_yodalabel .yodalabel').html(error);
+          $(id + '_yodawrapper .yodalabel').html(error);
       else   
-          $(id + '_yodalabel .yodalabel').html(that.validation.errors.blank);
-          $(id + '_yodalabel .yodalabel').addClass('error');
+          $(id + '_yodawrapper .yodalabel').html(that.validation.errors.blank);
+    $(id + '_yodawrapper .yodalabel').addClass('error');
   }
 
   this.validation.blank = function(id){
@@ -66,6 +63,10 @@ function Formyoda(){
   }
 
   this.validation.max = function(id, max){
+    if(typeof max == 'undefined' || typeof max != 'number'){
+       console.error('Invalid argument type to max validation function. Expected: int -> Received \"' +  typeof max + '\"');
+       return false;
+    }
     if($(id).val().length > max)
       return false;
     else
@@ -73,6 +74,10 @@ function Formyoda(){
   }
 
   this.validation.min = function(id, min){
+    if(typeof min == 'undefined' || typeof min != 'number'){
+       console.error('Invalid argument type to min validation function. Expected: int -> Received \"' +  typeof min + '\"');
+       return false;
+    }
     if($(id).val().length < min)
       return false;
     else
@@ -87,6 +92,10 @@ function Formyoda(){
   }
 
   this.validation.format = function(id, regex){
+    if(typeof regex == 'undefined' || typeof regex != 'string'){
+       console.error('Invalid argument type to format validation function. Expected: string -> Received \"' +  typeof regex + '\"');
+       return false;
+    }
     if(!regex.test($(input).val()))
       return false;
     else
@@ -100,7 +109,7 @@ function Formyoda(){
         // get input id   
         var elem_id = '#' + field;
         // store user input
-        this.user_input[field] = $(elem_id).val(); //tb
+        this.user_input[field] = $(elem_id).val(); 
         // check if we were passed a valid form element id
         if(!$(elem_id).length){
           console.error('The form element id: \"' + field + '\" is not a valid id. Check your validation object');
@@ -108,6 +117,10 @@ function Formyoda(){
         }
         if(this.validation.fields.hasOwnProperty(field)){
           var field_obj  = this.validation.fields[field];
+          if(typeof field_obj != 'object'){
+            console.error('this.validation.fields is malformed for field: \"' + field +  '\". Expected: "object" -> received: ' + typeof field_obj);
+            return false;
+          }
           // loop for validate methods for the form field  
           for ( var validation_method in field_obj ){    
             if(field_obj.hasOwnProperty(validation_method)){
@@ -120,10 +133,13 @@ function Formyoda(){
                 return false;
              }
               // check if there is a custom error msg and if so bind it in the global object for use in validation function
-              if(typeof validation_opts.error != 'undefined')
-                var error = validation_opts.error;
-              else 
-                var error = 'default';
+             var error = 'default'; 
+             if(typeof validation_opts.error != 'undefined'){
+                if(typeof validation_opts.error == 'string')
+                  error = validation_opts.error;
+                else
+                  console.error('Error message for field: ' + field + 'Expected: string -> recieved \"' + typeof validation_opts.error + '\"');
+              }
               // check if there are arguments to validation method
               if(typeof validation_opts.args != 'undefined') { 
                 if(!(validation_opts.args instanceof Array)) {
@@ -133,9 +149,8 @@ function Formyoda(){
                 else
                   params = params.concat(validation_opts.args);
               }
-              // execute validate method
+              // execute validation method
               if(!this.validation[validation_method].apply(null, params)){
-                // we will at the validate failure behaviour here
                 this.validation.failed(elem_id, error);
                 errors = true;
                 break;
@@ -157,7 +172,15 @@ function Formyoda(){
   */
 
   this.add_yodalabels = function(inputs){
-
+      
+    if(typeof inputs != 'object'){
+      console.error('Invalid type passed to add_yodalabels function. Expected: "object" -> received: \"' + typeof inputs + '\"');
+      return false
+    }
+    else if(inputs instanceof Array){
+      console.error('Invalid type passed to the add_yodalabels function. Expected: "object" -> received: \"Array\"');
+      return false;
+    }
     this.yodalabels = inputs;
 
     for(var field in inputs){
@@ -169,7 +192,7 @@ function Formyoda(){
         return false; 
       }
       // create yoda label container id
-      var yodaid = field + '_yodalabel';
+      var yodaid = field + '_yodawrapper';
        // if not inline, labels are displayed behind the form inputs like placeholders
       if(this.labels.inline == false){
         // set css
@@ -187,7 +210,7 @@ function Formyoda(){
         // bind to input focus and blur
         $(elem_id).focus(function(){
             var id = $(this).attr('id');
-            var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
+            var elem_id = '#' +  $(this).attr('id') + '_yodawrapper .yodalabel';
             $(elem_id).html('');
             if($(elem_id).hasClass('error')){
               $(this).val(that.user_input[id]);
@@ -199,7 +222,7 @@ function Formyoda(){
            });
         
         $(elem_id).blur(function(){
-            var elem_id = '#' +  $(this).attr('id') + '_yodalabel .yodalabel';
+            var elem_id = '#' +  $(this).attr('id') + '_yodawrapper .yodalabel';
             if($(this).val() == '')
               $(elem_id).html(that.yodalabels[$(this).attr('id')]);
           });
@@ -219,7 +242,7 @@ function Formyoda(){
         // bind focus and blur methods
         $(elem_id).focus(function(){
             var id = $(this).attr('id');
-            var  elem_id = '#' + $(this).attr('id') + '_yodalabel .yodalabel';
+            var  elem_id = '#' + $(this).attr('id') + '_yodawrapper .yodalabel';
             
             if($(elem_id).hasClass('error')){
             $(elem_id).removeClass('error');
@@ -245,7 +268,7 @@ $(document).ready(function(){
     formyoda.validation.fields.username = {   // validation methods applied to username field
                                               blank : { error: 'Blank, username cannot be'}, // method without an argument but unique error
                                               min :   { error: 'Less than five characters this cannot be',  args : [5] } } // method with unique error and argument to min function
-
+    
     formyoda.validation.fields.mail = { 
                                               blank : { }, // method with no specified error will use the default error for that method
                                               email : { error: 'Email this is not' } } 
@@ -254,7 +277,6 @@ $(document).ready(function(){
     $('form').submit(function(){ 
         if(!formyoda.validate())
           return false;
-        return false; // for testing purposes
     })
 });
 
