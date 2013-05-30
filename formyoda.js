@@ -20,8 +20,8 @@ function Formyoda(){
   this.validation.errors = {
                              blank : 'Blank this cannot be',
                              email : 'Invalid Email this is',
-                             maxchars : 'Too many characters you have',
-                             minchars : 'Too few characters you have',
+                             max : 'Too many characters you have',
+                             min : 'Too few characters you have',
                              numeric : 'A number this must be',
                              format : 'Invalid format this is'
                                                         };
@@ -35,89 +35,62 @@ function Formyoda(){
   /*
   * Validation functions
   */
-  this.validation.blank = function(id, error){
-    if($(id).val() == ''){
-        if(error != 'default')
-           $(id + '_yodalabel .yodalabel').html(error);
-        else   
+
+   // on validation failure
+  this.validation.failed = function(id, error){
+   
+    if(that.labels.inline == false)
+        $(id).val('');
+
+    if (error != 'default')
+          $(id + '_yodalabel .yodalabel').html(error);
+      else   
           $(id + '_yodalabel .yodalabel').html(that.validation.errors.blank);
-        $(id + '_yodalabel .yodalabel').addClass('error');
-        return false;
-    }
+          $(id + '_yodalabel .yodalabel').addClass('error');
+  }
+
+  this.validation.blank = function(id){
+    if($(id).val() == '')
+      return false;
+    else
     return true;
   }
 
-  this.validation.email = function(id, error){
+  this.validation.email = function(id){
     var email = $(id).val();
     var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
-    if(!regex.test(email)){
-      if(that.labels.inline == false)
-        $(id).val('');
-      
-      if(error != 'default')
-           $(id + '_yodalabel .yodalabel').html(error);
-      else   
-        $(id + '_yodalabel .yodalabel').html(that.validation.errors.email);
-      $(id + '_yodalabel .yodalabel').addClass('error');
-      return  false;
-    }
-    return true;
+    if(!regex.test(email))
+      return false
+    else
+      return true;
   }
 
-  this.validation.max = function(id, error, max){
-    if($(id).val().length > max){
-      if(that.labels.inline == false);
-      $(id).val('');
-      if(error != 'default')
-           $(id + '_yodalabel .yodalabel').html(error);
-      else   
-        $(id + '_yodalabel .yodalabel').html(that.validation.errors.maxchars);
-      $(id + '_yodalabel .yodalabel').addClass('error');
+  this.validation.max = function(id, max){
+    if($(id).val().length > max)
       return false;
-    }
-    return true;
+    else
+      return true;
   }
 
-  this.validation.min = function(id, error, min){
-    if($(id).val().length < min){
-      if(that.labels.inline == false);
-      $(id).val('');
-      if(error != 'default')
-           $(id + '_yodalabel .yodalabel').html(error);
-      else   
-        $(id + '_yodalabel .yodalabel').html(that.validation.errors.minchars);
-      $(id + '_yodalabel .yodalabel').addClass('error');
+  this.validation.min = function(id, min){
+    if($(id).val().length < min)
       return false;
-    }
-    return true;
+    else
+      return true;
   }
 
-  this.validation.numeric = function(id, error){
-    if(typeof $(id).val() != 'number'){
-      if(that.labels.inline == false);
-      $(id).val('');
-      if(error != 'default')
-           $(id + '_yodalabel .yodalabel').html(error);
-      else   
-        $(id + '_yodalabel .yodalabel').html(that.validation.errors.numeric);
-      $(id + '_yodalabel .yodalabel').addClass('error');
+  this.validation.numeric = function(id){
+    if(typeof $(id).val() != 'number')
       return false;
-    }
-    return true
+    else
+      return true
   }
 
-  this.validation.format = function(id, error, regex){
-    if(!regex.test($(input).val())){
-      if(that.labels.inline == false);
-      $(id).val('');
-      if(error != 'default')
-        $(id + '_yodalabel .yodalabel').html(error);
-      else   
-        $(id + '_yodalabel .yodalabel').html(that.validation.errors.format);
-      $(id + '_yodalabel .yodalabel').addClass('error');
+  this.validation.format = function(id, regex){
+    if(!regex.test($(input).val()))
       return false;
-    }
-    return true;
+    else
+      return true;
   }
   // validation master 
   this.validate = function(){
@@ -148,9 +121,9 @@ function Formyoda(){
              }
               // check if there is a custom error msg and if so bind it in the global object for use in validation function
               if(typeof validation_opts.error != 'undefined')
-                params.push(validation_opts.error)
+                var error = validation_opts.error;
               else 
-                params.push('default');
+                var error = 'default';
               // check if there are arguments to validation method
               if(typeof validation_opts.args != 'undefined') { 
                 if(!(validation_opts.args instanceof Array)) {
@@ -162,6 +135,8 @@ function Formyoda(){
               }
               // execute validate method
               if(!this.validation[validation_method].apply(null, params)){
+                // we will at the validate failure behaviour here
+                this.validation.failed(elem_id, error);
                 errors = true;
                 break;
               } // close if
