@@ -136,9 +136,9 @@ function Formyoda(){
         if(this.validation.fields.hasOwnProperty(field)){
           var field_obj  = this.validation.fields[field];
           // loop for validate methods for the form field  
-          for ( var validation_method in field_obj.methods ){    
-            if(field_obj.methods.hasOwnProperty(validation_method)){
-              var validation_opts = field_obj.methods[validation_method];
+          for ( var validation_method in field_obj ){    
+            if(field_obj.hasOwnProperty(validation_method)){
+              var validation_opts = field_obj[validation_method];
               var params = [];
               params.push(elem_id);       
               // check if validation function exists
@@ -267,15 +267,13 @@ $(document).ready(function(){
     formyoda.labels.inline = true;
     formyoda.add_yodalabels({username : 'username...', mail : 'email...'});
     // set up validation of username field
-    formyoda.validation.fields.username = {   
-                                            methods : {   // validation methods applied to username field
-                                                          blank : { error: 'Blank, username cannot be'}, // method without an argument but unique error
-                                                          min :   { error: 'Less than five characters this cannot be',  args : [5] } } } // method with unique error and argument to min function
+    formyoda.validation.fields.username = {   // validation methods applied to username field
+                                              blank : { error: 'Blank, username cannot be'}, // method without an argument but unique error
+                                              min :   { error: 'Less than five characters this cannot be',  args : [5] } } // method with unique error and argument to min function
 
     formyoda.validation.fields.mail = { 
-                                            methods : {
-                                                          blank : { }, // method with no specified error will use the default error for that method
-                                                          email : { error: 'Email this is not' } } }
+                                              blank : { }, // method with no specified error will use the default error for that method
+                                              email : { error: 'Email this is not' } } 
                                                         
 
     $('form').submit(function(){ 
