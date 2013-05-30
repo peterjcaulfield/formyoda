@@ -14,16 +14,21 @@ function Formyoda(){
   this.labels = {inline : false};
   // validation initialization
   this.validation = {};
-  // error messages for each validation function
+// error messages for each validation function
   this.validation.errors = {
-                             blank : 'Please fill out this field',
-                             email : 'Invalid Email',
-                             maxchars : 'Too many characters',
-                             minchars : 'Too few characters',
-                             numeric : 'Must be a number',
-                             format : 'Invalid format'
+                             blank : 'Blank this cannot be',
+                             email : 'Invalid Email this is',
+                             maxchars : 'Too many characters you have',
+                             minchars : 'Too few characters you have',
+                             numeric : 'A number this must be',
+                             format : 'Invalid format this is'
                                                         };
   this.validation.unique_errors = {};
+  // stores user validation options
+  this.validation.fields = {};
+  // stores user input on text fields so it's not wiped in validation when we have labels behind inputs
+  // Logic still needs to be implemented in validation and focus methods
+  this.user.input = {};
 
   /*
   * Validation functions
@@ -107,10 +112,10 @@ function Formyoda(){
     return true;
   }
   // validation master 
-  this.validate = function(validation){
+  this.validate = function(){
     errors = false;
         // loop through form fields
-    for ( var field in validation ){
+    for ( var field in this.validation.fields ){
         // get input id   
         var elem_id = '#' + field;
         // check if we were passed a valid form element id
@@ -118,8 +123,8 @@ function Formyoda(){
           console.error('The form element id: \"' + field + '\" is not a valid id. Check your validation object');
           return false; 
         }
-        if(validation.hasOwnProperty(field)){
-          var field_obj  = validation[field];
+        if(this.validation.fields.hasOwnProperty(field)){
+          var field_obj  = this.validation.fields[field];
           // loop for validate methods for the form field  
           for ( var validation_method in field_obj.methods ){    
             if(field_obj.methods.hasOwnProperty(validation_method)){
@@ -239,17 +244,27 @@ function Formyoda(){
 
 // usage
 $(document).ready(function(){
-
+    // create the formyoda
     var formyoda = new Formyoda();
-    var validation = { username : { methods : { min : {args : [5], error : 'fuuuuuuuu'} } } };
-
+    // add input labels
     formyoda.labels.inline = true;
-    formyoda.add_yodalabels({'username' : 'username...', 'mail' : 'email...'});
+    formyoda.add_yodalabels({username : 'username...', mail : 'email...'});
+    // set up validation of username field
+    formyoda.validation.fields.username = {   
+                                            methods : {   // validation methods applied to username field
+                                                          blank : { error: 'Blank, username cannot be'}, // method without an argument but unique error
+                                                          min :   { error: 'Less than five characters this cannot be',  args : [5] } } } // method with unique error and argument to min function
+
+    formyoda.validation.fields.mail = { 
+                                            methods : {
+                                                          blank : { }, // method with no specified error will use the default error for that method
+                                                          email : { error: 'Email this is not' } } }
+                                                        
 
     $('form').submit(function(){ 
-        if(!formyoda.validate(validation))
+        if(!formyoda.validate())
           return false;
         return false; // for testing purposes
-        })
+    })
 });
 
