@@ -285,7 +285,7 @@ $(document).ready(function(){
                                               blank : { error: 'Blank, username cannot be'}, // method without an argument but unique error
                                               min :   { error: 'Less than five characters this cannot be',  args : [5] } } // method with unique error and argument to min function
     
-    formyoda.validation.fields.mail = { 
+    formyoda.validation.fields.mail =     { 
                                               blank : { }, // method with no specified error will use the default error for that method
                                               email : { error: 'Email this is not' } } 
                                                         
