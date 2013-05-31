@@ -34,25 +34,23 @@ function Formyoda(){
   */
 
    // on validation failure
-  this.validation.failed = function(id, error){
-   
+  this.validation.failed = function(id, error, method){
     if(that.labels.inline == false)
         $(id).val('');
-
     if (error != 'default')
           $(id + '_yodawrapper .yodalabel').html(error);
       else   
-          $(id + '_yodawrapper .yodalabel').html(that.validation.errors.blank);
+          $(id + '_yodawrapper .yodalabel').html(that.validation.errors[method]);
     $(id + '_yodawrapper .yodalabel').addClass('error');
   }
-
+  // check for blank string
   this.validation.blank = function(id){
     if($(id).val() == '')
       return false;
     else
     return true;
   }
-
+  // checck if valid email
   this.validation.email = function(id){
     var email = $(id).val();
     var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
@@ -61,7 +59,7 @@ function Formyoda(){
     else
       return true;
   }
-
+  // check against max character count
   this.validation.max = function(id, max){
     if(typeof max == 'undefined' || typeof max != 'number'){
        console.error('Invalid argument type to max validation function. Expected: int -> Received \"' +  typeof max + '\"');
@@ -72,7 +70,7 @@ function Formyoda(){
     else
       return true;
   }
-
+  // check against minimum character count
   this.validation.min = function(id, min){
     if(typeof min == 'undefined' || typeof min != 'number'){
        console.error('Invalid argument type to min validation function. Expected: int -> Received \"' +  typeof min + '\"');
@@ -83,14 +81,14 @@ function Formyoda(){
     else
       return true;
   }
-
+  // check if its numeric
   this.validation.numeric = function(id){
     if(typeof $(id).val() != 'number')
       return false;
     else
       return true
   }
-
+  // check against arbitrary regex pattern
   this.validation.format = function(id, regex){
     if(typeof regex == 'undefined' || typeof regex != 'string'){
        console.error('Invalid argument type to format validation function. Expected: string -> Received \"' +  typeof regex + '\"');
@@ -132,6 +130,7 @@ function Formyoda(){
                 console.error('Invalid type given for field: \"' + field +  '\". Expected: "object" -> received: "Array". Check your validation.fields settings');
                 return false;
               }
+              // array to hold args to be passed to the validation function
               var params = [];
               params.push(elem_id);       
               // check if validation function exists
@@ -158,7 +157,7 @@ function Formyoda(){
               }
               // execute validation method
               if(!this.validation[validation_method].apply(null, params)){
-                this.validation.failed(elem_id, error);
+                this.validation.failed(elem_id, error, validation_method);
                 errors = true;
                 break;
               } // close if
@@ -179,7 +178,7 @@ function Formyoda(){
   */
 
   this.add_yodalabels = function(inputs){
-      
+   
     if(typeof inputs != 'object'){
       console.error('Invalid type passed to add_yodalabels function. Expected: "object" -> received: \"' + typeof inputs + '\"');
       return false
@@ -188,6 +187,7 @@ function Formyoda(){
       console.error('Invalid type passed to the add_yodalabels function. Expected: "object" -> received: \"Array\"');
       return false;
     }
+    
     this.yodalabels = inputs;
 
     for(var field in inputs){
@@ -229,7 +229,6 @@ function Formyoda(){
             }
             if($(elem_id).hasClass('error'))
                 $(elem_id).removeClass('error');
-               
            });
         
         $(elem_id).blur(function(){
@@ -254,7 +253,6 @@ function Formyoda(){
         $(elem_id).focus(function(){
             var id = $(this).attr('id');
             var  elem_id = '#' + $(this).attr('id') + '_yodawrapper .yodalabel';
-            
             if($(elem_id).hasClass('error')){
               $(elem_id).removeClass('error');
               $(elem_id).html(that.yodalabels[$(this).attr('id')]);
