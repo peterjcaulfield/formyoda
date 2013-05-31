@@ -112,24 +112,31 @@ function Formyoda(){
         this.user_input[field] = $(elem_id).val(); 
         // check if we were passed a valid form element id
         if(!$(elem_id).length){
-          console.error('The form element id: \"' + field + '\" is not a valid id. Check your validation object');
+          console.error('The form element id: \"' + field + '\" is not a valid id. Check your validation.fields settings');
           return false; 
         }
         if(this.validation.fields.hasOwnProperty(field)){
           var field_obj  = this.validation.fields[field];
           if(typeof field_obj != 'object'){
-            console.error('this.validation.fields is malformed for field: \"' + field +  '\". Expected: "object" -> received: ' + typeof field_obj);
+            console.error('Invalid type given for field: \"' + field +  '\". Expected: "object" -> received: \"' + typeof field_obj + '\". Check your validation.fields settings');
             return false;
           }
           // loop for validate methods for the form field  
           for ( var validation_method in field_obj ){    
             if(field_obj.hasOwnProperty(validation_method)){
               var validation_opts = field_obj[validation_method];
+              if(typeof validation_opts != 'object'){
+                console.error('Invalid type given for field: \"' + field +  '\". Expected: "object" -> received: \"' + typeof validation_opts + '\". Check your validation.fields settings');
+                return false;
+              }else if(validation_opts instanceof Array){
+                console.error('Invalid type given for field: \"' + field +  '\". Expected: "object" -> received: "Array". Check your validation.fields settings');
+                return false;
+              }
               var params = [];
               params.push(elem_id);       
               // check if validation function exists
              if(typeof this.validation[validation_method] != 'function'){
-                console.error("Validation method: \"" +   validation_method +  '\" specified for form field: \"' + field + ' \"   does not exist. Check your validation object');
+                console.error("Validation method: \"" +   validation_method +  '\" specified for form field: \"' + field + ' \"   does not exist. Check your validation.fields settings');
                 return false;
              }
               // check if there is a custom error msg and if so bind it in the global object for use in validation function
@@ -143,7 +150,7 @@ function Formyoda(){
               // check if there are arguments to validation method
               if(typeof validation_opts.args != 'undefined') { 
                 if(!(validation_opts.args instanceof Array)) {
-                  console.error('Argument: \"' + validation_opts.args + '\" to validate method: \"' + validation_method +  '\" for form field: \"' + field + '\"  must be wrapped in an array. Check your validation object');
+                  console.error('Argument: \"' + validation_opts.args + '\" to validate method: \"' + validation_method +  '\" for form field: \"' + field + '\"  must be wrapped in an array. Check your validation.fields settings');
                   return false;
                 }
                 else
@@ -184,11 +191,15 @@ function Formyoda(){
     this.yodalabels = inputs;
 
     for(var field in inputs){
+      if(typeof inputs[field] != 'string'){
+        console.error('Invalid type given for label for field: \"' + field + '\" in call to add_yodalabels function. Expected: "string" -> received: \"' + typeof inputs[field] + '\"' );
+        return false;
+      }
       // get element id
       var elem_id = '#' + field;
       // check if we were passed a valid form element id
       if(!$(elem_id).length){
-        console.error('The form element id: \"' + field + '\" is not a valid id. Check your labels object');
+        console.error('Invalid form element id given for field: \"' + field + '\" in call to add_yodalabels function.');
         return false; 
       }
       // create yoda label container id
@@ -204,7 +215,7 @@ function Formyoda(){
         $(elem_id).parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
         // add yodalabel
-        $('#' + yodaid).append('<div class="yodalabel"></div>');
+        $('#' + yodaid).append('<div id="' + field + '_yodalabel"  class="yodalabel"></div>');
         // set initial input value
         $('#' +  yodaid + ' .yodalabel').html(inputs[field]);
         // bind to input focus and blur
@@ -216,9 +227,9 @@ function Formyoda(){
               $(this).val(that.user_input[id]);
               that.user_input[id] = '';
             }
-            if($(elem_id).hasClass('error')){
+            if($(elem_id).hasClass('error'))
                 $(elem_id).removeClass('error');
-               }
+               
            });
         
         $(elem_id).blur(function(){
@@ -236,7 +247,7 @@ function Formyoda(){
         $(elem_id).parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
         // append the label
-        $('#' + yodaid).append('<div class="yodalabel"></div>');
+        $('#' + yodaid).append('<div id="' + field + '_yodalabel"  class="yodalabel"></div>');
         // set the initial input value
         $('#' + yodaid + ' .yodalabel').html(inputs[field]);
         // bind focus and blur methods
@@ -245,8 +256,8 @@ function Formyoda(){
             var  elem_id = '#' + $(this).attr('id') + '_yodawrapper .yodalabel';
             
             if($(elem_id).hasClass('error')){
-            $(elem_id).removeClass('error');
-            $(elem_id).html(that.yodalabels[$(this).attr('id')]);
+              $(elem_id).removeClass('error');
+              $(elem_id).html(that.yodalabels[$(this).attr('id')]);
             }
           });
 
