@@ -1,3 +1,10 @@
+/*
+ * Name:    formyoda.js
+ * About:   Form helper with state based labelling, and validation utilities
+ * Author:  Peter J. Caulfield, peterjcaulfield [at] gmail [dot] com
+ *
+ */
+
 // Dependencies: JQuery
 if(document.readyState === "complete") {
   if(typeof JQuery === 'undefined')
