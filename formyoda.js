@@ -226,6 +226,7 @@ function Formyoda(){
         // set initial input value
         $('#' +  yodaid + ' .yodalabel').html(inputs[field]);
         // bind to input focus and blur
+        // we need to switch this to keyup testing blank values
         $(elem_id).focus(function(){
             var id = $(this).attr('id');
             var elem_id = '#' +  $(this).attr('id') + '_yodawrapper .yodalabel';
