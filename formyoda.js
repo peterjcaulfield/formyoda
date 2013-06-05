@@ -17,6 +17,10 @@ function Formyoda(){
   */
   // get reference to this for when we are nested and need ref to parent
   var that = this;
+  // create an object to cache jquery input elements :)
+  this.jquery_input_elements = {};
+  // create object to cache jquery overlay elements
+  this.jquery_overlay_elements = {};
   // defaults to labels behind inputs
   this.labels = {inline : false};
   // validation initialization
@@ -209,6 +213,8 @@ function Formyoda(){
         console.error('Invalid form element id given for field: \"' + field + '\" in call to add_yodalabels function.');
         return false; 
       }
+      // we have a valid element so we can cache it
+      this.jquery_input_elements[field] = $(elem_id);
       // create yoda label container id
       var yodaid = field + '_yodawrapper';
        // if not inline, labels are displayed behind the form inputs like placeholders
@@ -223,27 +229,55 @@ function Formyoda(){
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
         // add yodalabel
         $('#' + yodaid).append('<div id="' + field + '_yodalabel"  class="yodalabel"></div>');
+        // cache yoda overlay
+        this.jquery_overlay_elements[field] = $('#' + field + '_yodalabel');
         // set initial input value
         $('#' +  yodaid + ' .yodalabel').html(inputs[field]);
-        // bind to input focus and blur
-        // we need to switch this to keyup testing blank values
-        $(elem_id).focus(function(){
-            var id = $(this).attr('id');
-            var elem_id = '#' +  $(this).attr('id') + '_yodawrapper .yodalabel';
-            $(elem_id).html('');
-            if($(elem_id).hasClass('error')){
-              $(this).val(that.user_input[id]);
-              that.user_input[id] = '';
-            }
-            if($(elem_id).hasClass('error'))
-                $(elem_id).removeClass('error');
-           });
         
-        $(elem_id).blur(function(){
-            var elem_id = '#' +  $(this).attr('id') + '_yodawrapper .yodalabel';
-            if($(this).val() == '')
-              $(elem_id).html(that.yodalabels[$(this).attr('id')]);
-          });
+        // bind to input keydown, focus and blur
+        
+        // first we create function that declares all
+        // the variables the event handler needs and
+        // then returns a function to handle the actual
+        // event. Most important is that we are caching 
+        // jquery objects via closures :)
+        function create_keydown_handler(){
+            var input = that.jquery_input_elements[field];
+            var overlay = that.jquery_overlay_elements[field];
+            var id = field;
+            return function(){
+              setTimeout(function(){ // settimeout allows us to get input value on keydown rather than key up
+                if(input.val() == '')
+                  overlay.html(that.yodalabels[id]);
+                else
+                  overlay.html('');
+              }, 1)
+            }
+        }
+        // we bind the event to the anonymous function returned by our cached function creater
+        this.jquery_input_elements[field].on('keydown', create_keydown_handler());
+        // create cache based focus handler        
+        function create_focus_handler(){
+            var input = that.jquery_input_elements[field];
+            var overlay = that.jquery_overlay_elements[field];
+            var id = field;
+            return function(){
+              if(overlay.hasClass('error')){
+                if(that.user_input[id] != ''){
+                  overlay.html('');
+                  input.val(that.user_input[id]);
+                  that.user_input[id] = '';
+                  overlay.removeClass('error');
+                  return;
+                }
+                overlay.html(that.yodalabels[id]);
+                overlay.removeClass('error');
+              }
+            }
+        }
+        // bind to focus 
+        this.jquery_input_elements[field].on('focus', create_focus_handler());
+
 
       } else { // we are dealing with labels to be displayed inline with the inputs
         // set css
@@ -255,20 +289,27 @@ function Formyoda(){
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
         // append the label
         $('#' + yodaid).append('<div id="' + field + '_yodalabel"  class="yodalabel"></div>');
+        // cache yoda overlay
+        this.jquery_overlay_elements[field] = $('#' + field + '_yodalabel');
         // set the initial input value
         $('#' + yodaid + ' .yodalabel').html(inputs[field]);
         // bind focus and blur methods
-        $(elem_id).focus(function(){
-            var id = $(this).attr('id');
-            var  elem_id = '#' + $(this).attr('id') + '_yodawrapper .yodalabel';
-            if($(elem_id).hasClass('error')){
-              $(elem_id).removeClass('error');
-              $(elem_id).html(that.yodalabels[$(this).attr('id')]);
+        
+        // create cache friendly focus handler
+        function create_focus_handler(){
+            var input = that.jquery_input_elements[field];
+            var overlay = that.jquery_overlay_elements[field];
+            var id = field;
+            return function(){
+              if(overlay.hasClass('error')){
+                overlay.removeClass('error');
+                overlay.html(that.yodalabels[id]);
+              }
             }
-          });
-
-        $(elem_id).blur(function(){
-          });
+        }
+        // bind to focus  
+        this.jquery_input_elements[field].on('focus', create_focus_handler());
+      
       }// end of else
     } // end of loop
   } // end of add function
