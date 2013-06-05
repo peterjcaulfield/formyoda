@@ -17,10 +17,12 @@ function Formyoda(){
   */
   // get reference to this for when we are nested and need ref to parent
   var that = this;
-  // create an object to cache jquery input elements :)
+  // create an object to cache jquery input elements
   this.jquery_input_elements = {};
   // create object to cache jquery overlay elements
   this.jquery_overlay_elements = {};
+  // create object to cache validation elements
+  this.jquery_validate_elements = {};
   // defaults to labels behind inputs
   this.labels = {inline : false};
   // validation initialization
@@ -55,57 +57,56 @@ function Formyoda(){
     $(id + '_yodawrapper .yodalabel').addClass('error');
   }
   // check for blank string
-  this.validation.blank = function(id){
-    if($(id).val() == '')
+  this.validation.blank = function(value){
+    if(value == '')
       return false;
     else
     return true;
   }
   // checck if valid email
-  this.validation.email = function(id){
-    var email = $(id).val();
+  this.validation.email = function(value){
     var regex = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
-    if(!regex.test(email))
+    if(!regex.test(value))
       return false
     else
       return true;
   }
   // check against max character count
-  this.validation.max = function(id, max){
+  this.validation.max = function(value, max){
     if(typeof max == 'undefined' || typeof max != 'number'){
        console.error('Invalid argument type to max validation function. Expected: int -> Received \"' +  typeof max + '\"');
        return false;
     }
-    if($(id).val().length > max)
+    if(value.length > max)
       return false;
     else
       return true;
   }
   // check against minimum character count
-  this.validation.min = function(id, min){
+  this.validation.min = function(value, min){
     if(typeof min == 'undefined' || typeof min != 'number'){
        console.error('Invalid argument type to min validation function. Expected: int -> Received \"' +  typeof min + '\"');
        return false;
     }
-    if($(id).val().length < min)
+    if(value.length < min)
       return false;
     else
       return true;
   }
   // check if its numeric
-  this.validation.numeric = function(id){
-    if(typeof $(id).val() != 'number')
+  this.validation.numeric = function(value){
+    if(typeof value != 'number')
       return false;
     else
       return true
   }
   // check against arbitrary regex pattern
-  this.validation.format = function(id, regex){
+  this.validation.format = function(value, regex){
     if(typeof regex == 'undefined' || typeof regex != 'string'){
        console.error('Invalid argument type to format validation function. Expected: string -> Received \"' +  typeof regex + '\"');
        return false;
     }
-    if(!regex.test($(input).val()))
+    if(!regex.test(value))
       return false;
     else
       return true;
@@ -124,6 +125,14 @@ function Formyoda(){
           console.error('The form element id: \"' + field + '\" is not a valid id. Check your validation.fields settings');
           return false; 
         }
+        // we have a valid element so we can cache it
+        this.jquery_validate_elements[field] = $(elem_id);
+        
+        // array to hold args to be passed to the validation function
+        var params = [];
+        // add form field value to params
+        params.push(this.jquery_validate_elements[field].val());       
+        
         if(this.validation.fields.hasOwnProperty(field)){
           var field_obj  = this.validation.fields[field];
           if(typeof field_obj != 'object'){
@@ -141,9 +150,6 @@ function Formyoda(){
                 console.error('Invalid type given for field: \"' + field +  '\". Expected: "object" -> received: "Array". Check your validation.fields settings');
                 return false;
               }
-              // array to hold args to be passed to the validation function
-              var params = [];
-              params.push(elem_id);       
               // check if validation function exists
              if(typeof this.validation[validation_method] != 'function'){
                 console.error("Validation method: \"" +   validation_method +  '\" specified for form field: \"' + field + ' \"   does not exist. Check your validation.fields settings');
@@ -198,7 +204,7 @@ function Formyoda(){
       console.error('Invalid type passed to the add_yodalabels function. Expected: "object" -> received: \"Array\"');
       return false;
     }
-    
+    // store the inputs 
     this.yodalabels = inputs;
 
     for(var field in inputs){
