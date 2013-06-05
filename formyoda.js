@@ -214,18 +214,18 @@ function Formyoda(){
         return false; 
       }
       // we have a valid element so we can cache it
-      this.jquery_input_elements[field] = $(elem_id);
+      var the_input =  this.jquery_input_elements[field] = $(elem_id);
       // create yoda label container id
       var yodaid = field + '_yodawrapper';
        // if not inline, labels are displayed behind the form inputs like placeholders
       if(this.labels.inline == false){
         // set css
-        $(elem_id).parent().css({'position': 'relative'});
-        var topPos = $(elem_id).position().top + 3;
-        var leftPos = $(elem_id).position().left + 5;
-        $(elem_id).css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
+        the_input.parent().css({'position': 'relative'});
+        var topPos = the_input.position().top + 3;
+        var leftPos = the_input.position().left + 5;
+        the_input.css({'z-index' : 10, 'position' : 'relative',  'background' : 'none'});
         // add yoda label container div
-        $(elem_id).parent().append('<div id="' + yodaid + '"></div>');
+        the_input.parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
         // add yodalabel
         $('#' + yodaid).append('<div id="' + field + '_yodalabel"  class="yodalabel"></div>');
@@ -241,7 +241,7 @@ function Formyoda(){
         // then returns a function to handle the actual
         // event. Most important is that we are caching 
         // jquery objects via closures :)
-        function create_keydown_handler(){
+        var create_keydown_handler = function(){
             var input = that.jquery_input_elements[field];
             var overlay = that.jquery_overlay_elements[field];
             var id = field;
@@ -256,8 +256,9 @@ function Formyoda(){
         }
         // we bind the event to the anonymous function returned by our cached function creater
         this.jquery_input_elements[field].on('keydown', create_keydown_handler());
+        
         // create cache based focus handler        
-        function create_focus_handler(){
+        var create_focus_handler = function(){
             var input = that.jquery_input_elements[field];
             var overlay = that.jquery_overlay_elements[field];
             var id = field;
@@ -278,14 +279,13 @@ function Formyoda(){
         // bind to focus 
         this.jquery_input_elements[field].on('focus', create_focus_handler());
 
-
       } else { // we are dealing with labels to be displayed inline with the inputs
         // set css
-        $(elem_id).parent().css({'position': 'relative'});
-        var topPos = $(elem_id).position().top;
-        var leftPos = ($(elem_id).width() + 20);
+        the_input.parent().css({'position': 'relative'});
+        var topPos = the_input.position().top;
+        var leftPos = the_input.width() + 20;
         // add the yodalabel container div
-        $(elem_id).parent().append('<div id="' + yodaid + '"></div>');
+        the_input.parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
         // append the label
         $('#' + yodaid).append('<div id="' + field + '_yodalabel"  class="yodalabel"></div>');
@@ -296,8 +296,8 @@ function Formyoda(){
         // bind focus and blur methods
         
         // create cache friendly focus handler
-        function create_focus_handler(){
-            var input = that.jquery_input_elements[field];
+        var create_focus_handler = function(){
+            console.log('In the inline true function definition');
             var overlay = that.jquery_overlay_elements[field];
             var id = field;
             return function(){
@@ -308,8 +308,8 @@ function Formyoda(){
             }
         }
         // bind to focus  
-        this.jquery_input_elements[field].on('focus', create_focus_handler());
-      
+        this.jquery_input_elements[field].on('focus', create_focus_handler()); 
+  
       }// end of else
     } // end of loop
   } // end of add function
@@ -320,7 +320,7 @@ $(document).ready(function(){
     // create the formyoda
     var formyoda = new Formyoda();
     // add input labels
-    formyoda.labels.inline = true;
+    formyoda.labels.inline = false;
     formyoda.add_yodalabels({username : 'username...', mail : 'email...'});
     // set up validation of username field
     formyoda.validation.fields.username = {   // validation methods applied to username field
