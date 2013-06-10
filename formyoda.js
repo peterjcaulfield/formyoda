@@ -56,6 +56,12 @@ function Formyoda(){
           $(id + '_yodawrapper .yodalabel').html(that.validation.errors[method]);
     $(id + '_yodawrapper .yodalabel').addClass('error');
   }
+  
+  /*
+   Text fields
+   ==============================================================================================
+   */
+
   // check for blank string
   this.validation.blank = function(value){
     if(value == '')
@@ -111,10 +117,24 @@ function Formyoda(){
     else
       return true;
   }
+
+  /* Check boxes
+  ===================================================================================================================================
+  */
+
+  // check if a a checkbox is checked
+  this.validation.checked = function(elem){
+    if($(elem).is(':checked'))
+      return true;
+    else
+      return false;
+  }
+
   // validation master 
   this.validate = function(){
+    var params = null;
     errors = false;
-        // loop through form fields
+    // loop through form fields
     for ( var field in this.validation.fields ){
         // get input id   
         var elem_id = '#' + field;
@@ -128,11 +148,6 @@ function Formyoda(){
         // we have a valid element so we can cache it
         this.jquery_validate_elements[field] = $(elem_id);
         
-        // array to hold args to be passed to the validation function
-        var params = [];
-        // add form field value to params
-        params.push(this.jquery_validate_elements[field].val());       
-        
         if(this.validation.fields.hasOwnProperty(field)){
           var field_obj  = this.validation.fields[field];
           if(typeof field_obj != 'object'){
@@ -141,6 +156,10 @@ function Formyoda(){
           }
           // loop for validate methods for the form field  
           for ( var validation_method in field_obj ){    
+            // reset params array
+            params = [];
+            // add form field value to params
+            params.push(this.jquery_validate_elements[field].val());       
             if(field_obj.hasOwnProperty(validation_method)){
               var validation_opts = field_obj[validation_method];
               if(typeof validation_opts != 'object'){
@@ -172,6 +191,10 @@ function Formyoda(){
                 else
                   params = params.concat(validation_opts.args);
               }
+              // finally we need it to validate elements that don't
+              // return actual state with .val() (checkboxes etc.)
+              if(this.jquery_validate_elements[field].is('checkbox'))
+                params.push(field);
               // execute validation method
               if(!this.validation[validation_method].apply(null, params)){
                 this.validation.failed(elem_id, error, validation_method);
@@ -327,7 +350,7 @@ $(document).ready(function(){
     var formyoda = new Formyoda();
     // add input labels
     formyoda.labels.inline = false;
-    formyoda.add_yodalabels({username : 'username...', mail : 'email...'});
+    formyoda.add_yodalabels({username : 'username...', mail : 'email...', terms : 'Terms'});
     // set up validation of username field
     formyoda.validation.fields.username = {   // validation methods applied to username field
                                               blank : { error: 'Blank, username cannot be'}, // method without an argument but unique error
@@ -337,6 +360,8 @@ $(document).ready(function(){
                                               blank : { }, // method with no specified error will use the default error for that method
                                               email : { error: 'Email this is not' } } 
                                                         
+    
+    formyoda.validation.fields.terms = { checked : {error: 'this needs to be checked'}  };
 
     $('form').submit(function(){ 
         if(!formyoda.validate())
