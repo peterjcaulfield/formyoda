@@ -12,9 +12,10 @@ if(document.readyState === "complete") {
 }
 // constuctor
 function Formyoda(){
-  /*
-  * Initialisation
+  /* Initialisation
+  =====================================================================================
   */
+
   // get reference to this for when we are nested and need ref to parent
   var that = this;
   // create an object to cache jquery input elements
@@ -42,19 +43,28 @@ function Formyoda(){
   // stores user input on text fields so it's not wiped in validation when we have labels behind inputs
   this.user_input = {};
 
-  /*
-  * Validation functions
+  /* Validation Functions
+  =======================================================================================
   */
 
    // on validation failure
-  this.validation.failed = function(id, error, method){
+  this.validation.failed = function(field, elem, yodalabel,  error, method){
     if(that.labels.inline == false)
-        $(id).val('');
+        elem.val('');
     if (error != 'default')
-          $(id + '_yodawrapper .yodalabel').html(error);
+          yodalabel.html(error);
       else   
-          $(id + '_yodawrapper .yodalabel').html(that.validation.errors[method]);
-    $(id + '_yodawrapper .yodalabel').addClass('error');
+          yodalabel.html(that.validation.errors[method]);
+    yodalabel.addClass('error');
+    if(elem.is(':checkbox')){
+      setTimeout(function(){ 
+          yodalabel.fadeOut(100, function(){
+            yodalabel.removeClass('error');
+            yodalabel.html(that.yodalabels[field].placeholder);
+            yodalabel.fadeIn(100);
+            });
+          }, 2000);
+    }
   }
   
   /*
@@ -119,17 +129,23 @@ function Formyoda(){
   }
 
   /* Check boxes
-  ===================================================================================================================================
+  ======================================================================================================
   */
 
   // check if a a checkbox is checked
   this.validation.checked = function(elem){
-    if($(elem).is(':checked'))
+    if(that.jquery_validate_elements[elem].is(':checked')){
       return true;
-    else
+    }
+    else{
       return false;
+    }
   }
 
+  /* Validation loop of execution
+  ======================================================================================================
+  */
+  
   // validation master 
   this.validate = function(){
     var params = null;
@@ -159,7 +175,12 @@ function Formyoda(){
             // reset params array
             params = [];
             // add form field value to params
-            params.push(this.jquery_validate_elements[field].val());       
+            if(!this.jquery_validate_elements[field].is(':checkbox'))
+              params.push(this.jquery_validate_elements[field].val());
+            else
+              // we are dealing with  elements that don't
+              // return actual state with .val() (checkboxes etc.)
+                params.push(field);
             if(field_obj.hasOwnProperty(validation_method)){
               var validation_opts = field_obj[validation_method];
               if(typeof validation_opts != 'object'){
@@ -191,13 +212,9 @@ function Formyoda(){
                 else
                   params = params.concat(validation_opts.args);
               }
-              // finally we need it to validate elements that don't
-              // return actual state with .val() (checkboxes etc.)
-              if(this.jquery_validate_elements[field].is('checkbox'))
-                params.push(field);
               // execute validation method
               if(!this.validation[validation_method].apply(null, params)){
-                this.validation.failed(elem_id, error, validation_method);
+                this.validation.failed(field, this.jquery_validate_elements[field], this.jquery_overlay_elements[field], error, validation_method);
                 errors = true;
                 break;
               } // close if
@@ -213,8 +230,9 @@ function Formyoda(){
       return true;
   } // close validate function
 
-  /*
-  * Function for adding labels to selected inputs with default placeholder
+  /* Add yodalabels method
+  ===========================================================================================
+   Function for adding labels to selected inputs with default placeholder
   */
 
   this.add_yodalabels = function(inputs){
@@ -231,8 +249,8 @@ function Formyoda(){
     this.yodalabels = inputs;
 
     for(var field in inputs){
-      if(typeof inputs[field] != 'string'){
-        console.error('Invalid type given for label for field: \"' + field + '\" in call to add_yodalabels function. Expected: "string" -> received: \"' + typeof inputs[field] + '\"' );
+      if(typeof inputs[field].placeholder != 'string'){
+        console.error('Invalid type given for label for field: \"' + field + '\" in call to add_yodalabels function. Expected: "string" -> received: \"' + typeof inputs[field].placeholder + '\"' );
         return false;
       }
       // get element id
@@ -247,7 +265,7 @@ function Formyoda(){
       // create yoda label container id
       var yodaid = field + '_yodawrapper';
        // if not inline, labels are displayed behind the form inputs like placeholders
-      if(this.labels.inline == false){
+      if(inputs[field].position == 'behind' && this.jquery_input_elements[field].is(':input')){
         // set css
         the_input.parent().css({'position': 'relative'});
         var topPos = the_input.position().top + 3;
@@ -261,7 +279,7 @@ function Formyoda(){
         // cache yoda overlay
         this.jquery_overlay_elements[field] = $('#' + field + '_yodalabel');
         // set initial input value
-        $('#' +  yodaid + ' .yodalabel').html(inputs[field]);
+        $('#' +  yodaid + ' .yodalabel').html(inputs[field].placeholder);
         
         // bind to input keydown, focus and blur
         
@@ -277,18 +295,18 @@ function Formyoda(){
             return function(){
               setTimeout(function(){ // settimeout allows us to get input value on keydown rather than key up
                 if(input.val() == '')
-                  overlay.html(that.yodalabels[id]);
+                  overlay.html(that.yodalabels[id].placeholder);
                 else
                   overlay.html('');
               }, 1)
             }
-        }
-        // we bind the event to the anonymous function returned by our cached function creater
-        this.jquery_input_elements[field].on('keydown', create_keydown_handler());
+          }
+          // we bind the event to the anonymous function returned by our cached function creater
+          this.jquery_input_elements[field].on('keydown', create_keydown_handler());
         
-        // create cache based focus handler        
-        var create_focus_handler = function(){
-            var input = that.jquery_input_elements[field];
+          // create cache based focus handler        
+          var create_focus_handler = function(){
+          var input = that.jquery_input_elements[field];
             var overlay = that.jquery_overlay_elements[field];
             var id = field;
             return function(){
@@ -300,14 +318,14 @@ function Formyoda(){
                   overlay.removeClass('error');
                   return;
                 }
-                overlay.html(that.yodalabels[id]);
+                overlay.html(that.yodalabels[id].placeholder);
                 overlay.removeClass('error');
               }
             }
-        }
-        // bind to focus 
-        this.jquery_input_elements[field].on('focus', create_focus_handler());
-
+          }
+          // bind to focus 
+          this.jquery_input_elements[field].on('focus', create_focus_handler());
+        
       } else { // we are dealing with labels to be displayed inline with the inputs
         // set css
         the_input.parent().css({'position': 'relative'});
@@ -321,36 +339,44 @@ function Formyoda(){
         // cache yoda overlay
         this.jquery_overlay_elements[field] = $('#' + field + '_yodalabel');
         // set the initial input value
-        $('#' + yodaid + ' .yodalabel').html(inputs[field]);
-        // bind focus and blur methods
+        $('#' + yodaid + ' .yodalabel').html(inputs[field].placeholder);
         
-        // create cache friendly focus handler
-        var create_focus_handler = function(){
-            console.log('In the inline true function definition');
+        if( this.jquery_input_elements[field].is(':input') ) {
+          // bind focus and blur methods
+        
+          // create cache friendly focus handler
+          var create_focus_handler = function(){
             var overlay = that.jquery_overlay_elements[field];
             var id = field;
             return function(){
               if(overlay.hasClass('error')){
                 overlay.removeClass('error');
-                overlay.html(that.yodalabels[id]);
+                overlay.html(that.yodalabels[id].placeholder);
               }
             }
-        }
-        // bind to focus  
-        this.jquery_input_elements[field].on('focus', create_focus_handler()); 
-  
+          }
+          // bind to focus  
+          this.jquery_input_elements[field].on('focus', create_focus_handler()); 
+        } else {
+            
+            
+        } // end of if/else
       }// end of else
     } // end of loop
   } // end of add function
 }// end of constructor
 
-// usage
+/* Usage
+ ================================================================================
+ */
 $(document).ready(function(){
     // create the formyoda
     var formyoda = new Formyoda();
     // add input labels
     formyoda.labels.inline = false;
-    formyoda.add_yodalabels({username : 'username...', mail : 'email...', terms : 'Terms'});
+    formyoda.add_yodalabels( { username : { placeholder : 'username...', position: 'inline' }, 
+                               mail : { placeholder: 'email...', position: 'behind' }, 
+                               terms : { placeholder: 'Terms', position: 'inline'} } );
     // set up validation of username field
     formyoda.validation.fields.username = {   // validation methods applied to username field
                                               blank : { error: 'Blank, username cannot be'}, // method without an argument but unique error
