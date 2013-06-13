@@ -39,7 +39,7 @@ function Formyoda(){
                                                                     };
   this.validation.unique_errors = {};
   // stores user validation options
-  this.validation.fields = {};
+  //this.validation.fields = {};
   // stores user input on text fields so it's not wiped in validation when we have labels behind inputs
   this.user_input = {};
 
@@ -49,8 +49,8 @@ function Formyoda(){
 
    // on validation failure
   this.validation.failed = function(field, elem, yodalabel,  error, method){
-    if(that.labels.inline == false)
-        elem.val('');
+    if(that.yodalabels[field].position == 'behind')
+      elem.val('');
     if (error != 'default')
           yodalabel.html(error);
       else   
@@ -119,11 +119,11 @@ function Formyoda(){
       return true;
   }
 
-  /* Check boxes and radiobuttons
+  /* Check boxes
   ======================================================================================================
   */
 
-  // check if a a checkbox/radiobutton is checked
+  // check if a a checkbox is checked
   this.validation.checked = function(elem){
     if(elem.is(':checked')){
       return true;
@@ -132,15 +132,19 @@ function Formyoda(){
       return false;
     }
   }
-  /* Radiobuttons
+  /* Selects
   =====================================================================================================
  */
-
-  this.validation.selected = function(selector){
-    if($(selector).index() != 0)
-      return true;
+  // check that first option is not selected i.e the default
+  this.validation.selected = function(type, value){
+    if(type == 'select')
+      if(value == 0)
+        return false;
+      else return true;
     else
-      return false;
+      if(value == undefined)
+        return false;
+      else return true;
   }
 
 
@@ -155,16 +159,16 @@ function Formyoda(){
     // loop through form fields
     for ( var field in this.validation.fields ){
         // get input id   
-        var elem_id = '#' + field;
+       // var elem_id = '#' + field;
         // store user input
-        this.user_input[field] = $(elem_id).val(); 
+        this.user_input[field] = $(field).val(); 
         // check if we were passed a valid form element id
-        if(!$(elem_id).length){
+        if(!$(field).length){
           console.error('The form element id: \"' + field + '\" is not a valid id. Check your validation.fields settings');
           return false; 
         }
         // we have a valid element so we can cache it
-        this.jquery_validate_elements[field] = $(elem_id);
+        this.jquery_validate_elements[field] = $(field);
         
         if(this.validation.fields.hasOwnProperty(field)){
           var field_obj  = this.validation.fields[field];
@@ -187,7 +191,10 @@ function Formyoda(){
                      params.push(element);
                     break;
               case element.is('select'):
-                    params.push(elem_id + ' option:checked');
+                    params.push('select', $(field + ' option:checked').index());
+                    break;
+              case element.is('input:radio'):
+                    params.push('radio', $('input:radio[name=' + element.attr('name') + ']' + ':checked').val());                
                     break;
             }
 
@@ -264,18 +271,20 @@ function Formyoda(){
         return false;
       }
       // get element id
-      var elem_id = '#' + field;
+     // var elem_id = '#' + field;
+
       // check if we were passed a valid form element id
-      if(!$(elem_id).length){
+      if(!$(field).length){
         console.error('Invalid form element id given for field: \"' + field + '\" in call to add_yodalabels function.');
         return false; 
       }
       // we have a valid element so we can cache it
-      var the_input =  this.jquery_input_elements[field] = $(elem_id);
+      var the_input =  this.jquery_input_elements[field] = $(field);
       // create yoda label container id
-      var yodaid = field + '_yodawrapper';
+      var yoda_prefix = field.substr(1);
+      var yodaid = yoda_prefix + '_yodawrapper';
        // if not inline, labels are displayed behind the form inputs like placeholders
-      if(inputs[field].position == 'behind' && this.jquery_input_elements[field].is(':input')){
+      if(inputs[field].position == 'behind' && this.jquery_input_elements[field].is('input:text')){
         // set css
         the_input.parent().css({'position': 'relative'});
         var topPos = the_input.position().top + 3;
@@ -285,9 +294,9 @@ function Formyoda(){
         the_input.parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'z-index': 0});
         // add yodalabel
-        $('#' + yodaid).append('<div id="' + field + '_yodalabel"  class="yodalabel"></div>');
+        $('#' + yodaid).append('<div id="' + yoda_prefix + '_yodalabel"  class="yodalabel"></div>');
         // cache yoda overlay
-        this.jquery_overlay_elements[field] = $('#' + field + '_yodalabel');
+        this.jquery_overlay_elements[field] = $('#' + yoda_prefix + '_yodalabel');
         // set initial input value
         $('#' +  yodaid + ' .yodalabel').html(inputs[field].placeholder);
         
@@ -302,12 +311,17 @@ function Formyoda(){
             var input = that.jquery_input_elements[field];
             var overlay = that.jquery_overlay_elements[field];
             var id = field;
+            var blank_yodalabel = false;
             return function(){
               setTimeout(function(){ // settimeout allows us to get input value on keydown rather than key up
-                if(input.val() == '')
+                if(input.val() == ''){
                   overlay.html(that.yodalabels[id].placeholder);
-                else
+                  blank_yodalabel = false;
+                  }
+                else if(blank_yodalabel == false){
                   overlay.html('');
+                  blank_yodalabel = true;
+                  }
               }, 1)
             }
           }
@@ -345,9 +359,9 @@ function Formyoda(){
         the_input.parent().append('<div id="' + yodaid + '"></div>');
         $('#' + yodaid).css({'position' : 'absolute', 'top' : topPos, 'left' : leftPos, 'border' : 'none'});
         // append the label
-        $('#' + yodaid).append('<div id="' + field + '_yodalabel"  class="yodalabel"></div>');
+        $('#' + yodaid).append('<div id="' + yoda_prefix + '_yodalabel"  class="yodalabel"></div>');
         // cache yoda overlay
-        this.jquery_overlay_elements[field] = $('#' + field + '_yodalabel');
+        this.jquery_overlay_elements[field] = $('#' + yoda_prefix + '_yodalabel');
         // set the initial input value
         $('#' + yodaid + ' .yodalabel').html(inputs[field].placeholder);
           // create cache friendly focus handler
@@ -381,28 +395,24 @@ $(document).ready(function(){
     var formyoda = new Formyoda();
     // add input labels
     formyoda.labels.inline = false;
-    formyoda.add_yodalabels( { username : { placeholder : 'username...', position : 'inline' }, 
-                               mail : { placeholder: 'email...', position : 'behind' }, 
-                               terms : { placeholder: 'Terms', position : 'inline'}, 
-                               select : { placeholder : 'quantity', position : 'inline' } });
-    // set up validation of username field
-    formyoda.validation.fields.username = {   // validation methods applied to username field
-                                              blank : { error : 'Blank, username cannot be' }, // method without an argument but unique error
-                                              min :   { error : 'Less than five characters this cannot be',  args : [5] } }; // method with unique error and argument to min function
+    formyoda.add_yodalabels( { '#username' : { placeholder : 'username...', position : 'inline' }, 
+                               '#mail' : { placeholder: 'email...', position : 'behind' }, 
+                               '#terms' : { placeholder: 'Terms', position : 'inline'}, 
+                               '#select' : { placeholder : 'quantity', position : 'inline' },
+                               '.age' : { placeholder : 'age'} } );
     
-    formyoda.validation.fields.mail =     { 
-                                              blank : { }, // method with no specified error will use the default error for that method
-                                              email : { error : 'Email this is not' } }; 
-                                                        
-    
-    formyoda.validation.fields.terms = { checked : { error : 'this needs to be checked' }  };
-
-    formyoda.validation.fields.select = { selected : { error : 'please select an option' } };
+   formyoda.validation.fields = {
+    '#username' :  { blank : { error : 'Blank, username cannot be' }, 
+                      min :   { error : 'Less than five characters this cannot be',  args : [5] } },
+    '#mail' : { blank : { },
+                email : { error : 'Email this is not' } }, 
+    '#terms' : { checked : { error : 'Checked this must be' } },
+    '#select' : { selected : { error : 'Option you must select' } },
+    '.age' : { selected : { error : 'Option you must select'  } } };
 
     $('form').submit(function(){ 
         if(!formyoda.validate())
           return false;
-    });
-    console.log($('#select option:selected').index());
+    }); 
 });
 
